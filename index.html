@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sleepy's Guide to Personality Types</title>
+<meta name="description" content="A warm, friendly guide to MBTI and the Enneagram." />
+<style>
+  html, body { margin:0; padding:0; background:#FBF4E9; }
+  #root { min-height:100vh; }
+  #loading { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Trebuchet MS',sans-serif; color:#977C66; font-size:18px; background:#FBF4E9; z-index:9999; }
+</style>
+</head>
+<body>
+<div id="loading">🐾 Loading Sleepy's Guide…</div>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
+
+<script type="text/babel" data-presets="react">
+const { useState } = React;
+
+// ── DATA: MBTI ────────────────────────────────────────────────────────────────
+const mbtiData = {
+  ISTJ: { name: "The Inspector", tagline: "Dependable, thorough, structured",
+    description: "ISTJs are the steady backbone of institutions — reliable, detail-oriented, and deeply committed to fulfilling their duties. They value tradition, loyalty, and doing things correctly.",
+    strengths: ["Highly reliable & responsible", "Meticulous with detail", "Loyal and committed", "Calm under pressure", "Strong work ethic"],
+    challenges: ["Can be inflexible", "Resistant to change", "Slow to express emotion", "Tendency toward rigidity", "May seem distant"],
+    functions: [["Si","Introverted Sensing","Dominant","Drawing on rich personal memory and experience to navigate the present reliably."],["Te","Extroverted Thinking","Auxiliary","Organizing the external world with logic, efficiency, and clear systems."],["Fi","Introverted Feeling","Tertiary","A quiet inner value system that emerges more with maturity."],["Ne","Extroverted Intuition","Inferior","New possibilities and abstract ideas can feel overwhelming."]] },
+  ISFJ: { name: "The Protector", tagline: "Warm, caring, quietly devoted",
+    description: "ISFJs are among the most devoted helpers — attuned to others' needs, loyal to those they love, and quietly industrious. They find meaning in service and harmony.",
+    strengths: ["Deeply empathetic", "Extremely loyal", "Excellent memory for people", "Hardworking & devoted", "Warm and supportive"],
+    challenges: ["Neglects own needs", "Dislikes change & conflict", "Overly self-sacrificing", "Hard to voice needs", "Takes criticism personally"],
+    functions: [["Si","Introverted Sensing","Dominant","Deep attunement to personal experience — you notice and remember details about others."],["Fe","Extroverted Feeling","Auxiliary","Strong orientation toward group harmony and others' emotional needs."],["Ti","Introverted Thinking","Tertiary","Quiet internal analysis that helps you problem-solve."],["Ne","Extroverted Intuition","Inferior","Abstract possibilities and change can feel threatening."]] },
+  INFJ: { name: "The Counselor", tagline: "Visionary, empathetic, private",
+    description: "INFJs are rare idealists who pair a visionary inner world with deep empathy. They see patterns others miss and are quietly but intensely passionate about meaningful change.",
+    strengths: ["Deep intuitive insight", "Profoundly empathetic", "Strong sense of purpose", "Creative & imaginative", "Principled and idealistic"],
+    challenges: ["Impossibly high standards", "Prone to burnout", "Intensely private", "Perfectionist streak", "Can be too idealistic"],
+    functions: [["Ni","Introverted Intuition","Dominant","Synthesizing information into deep insights, patterns, and future visions."],["Fe","Extroverted Feeling","Auxiliary","Attuned to the emotional atmosphere; oriented toward others' wellbeing."],["Ti","Introverted Thinking","Tertiary","Internal logic used to refine your intuitions with rigor."],["Se","Extroverted Sensing","Inferior","Living fully in the present and sensory moment can feel challenging."]] },
+  INTJ: { name: "The Mastermind", tagline: "Strategic, independent, visionary",
+    description: "INTJs combine visionary thinking with rigorous logic. Self-confident, decisive, and private, they hold high standards and excel at long-range planning.",
+    strengths: ["Razor-sharp strategy", "Independent & self-reliant", "High standards & commitment", "Innovative & visionary", "Decisive and confident"],
+    challenges: ["Can appear arrogant", "Impatient with inefficiency", "Struggles with emotion", "Overly critical", "Inflexible about their vision"],
+    functions: [["Ni","Introverted Intuition","Dominant","Synthesizing complex information into long-range visions and strategy."],["Te","Extroverted Thinking","Auxiliary","Translating internal visions into organized, efficient external systems."],["Fi","Introverted Feeling","Tertiary","A quiet but deep value system that gains influence with maturity."],["Se","Extroverted Sensing","Inferior","Being fully present in the physical world can be draining."]] },
+  ISTP: { name: "The Craftsman", tagline: "Analytical, practical, cool-headed",
+    description: "ISTPs are calm, analytical observers who excel at understanding how things work. Quietly resourceful, they shine when solving practical, hands-on problems.",
+    strengths: ["Excellent troubleshooter", "Composed under pressure", "Highly resourceful", "Adaptable", "Great hands-on skills"],
+    challenges: ["Struggles with commitment", "Can seem detached", "Avoids emotional talk", "Bored by routine", "Can take risks"],
+    functions: [["Ti","Introverted Thinking","Dominant","Building precise internal logic — understanding how everything works from the inside out."],["Se","Extroverted Sensing","Auxiliary","Alert to present-moment data, acting with immediate practical precision."],["Ni","Introverted Intuition","Tertiary","Occasional flashes of insight that inform your troubleshooting."],["Fe","Extroverted Feeling","Inferior","Navigating others' emotions and social harmony can be challenging."]] },
+  ISFP: { name: "The Artist", tagline: "Gentle, creative, present",
+    description: "ISFPs are quiet artists of living — attuned to beauty, deeply feeling, and wonderfully present. They express themselves through action, aesthetics, and gentle authenticity.",
+    strengths: ["Deeply empathetic & kind", "Highly creative & aesthetic", "Adaptable & flexible", "Present-moment aware", "Loyal to loved ones"],
+    challenges: ["Avoids conflict", "Overly self-critical", "Struggles to plan ahead", "Sensitive to criticism", "Can be impulsive"],
+    functions: [["Fi","Introverted Feeling","Dominant","Intense inner emotional life and personal values — authenticity is everything."],["Se","Extroverted Sensing","Auxiliary","Vividly present — attuned to beauty, texture, and immediate experience."],["Ni","Introverted Intuition","Tertiary","Occasional deep insights that emerge beneath the surface."],["Te","Extroverted Thinking","Inferior","Organizing, planning, and logical efficiency can feel draining."]] },
+  INFP: { name: "The Dreamer", tagline: "Idealistic, empathetic, imaginative",
+    description: "INFPs are quiet idealists with rich inner lives and a deep commitment to authenticity. They care about meaning, about people, and about making the world more beautiful and just.",
+    strengths: ["Deeply compassionate", "Creative & imaginative", "Authentic & value-driven", "Open-minded & flexible", "Quietly passionate"],
+    challenges: ["Overthinks & ruminates", "Avoids confrontation", "Idealism vs. reality", "Struggles to finish", "Takes criticism to heart"],
+    functions: [["Fi","Introverted Feeling","Dominant","Deep personal values and authenticity — 'does this align with who I truly am?'"],["Ne","Extroverted Intuition","Auxiliary","Exploring possibilities and imagining what could be."],["Si","Introverted Sensing","Tertiary","Drawing on personal memory; nostalgic and detail-aware when engaged."],["Te","Extroverted Thinking","Inferior","Organizing and making logical decisions can feel draining."]] },
+  INTP: { name: "The Architect", tagline: "Logical, curious, original",
+    description: "INTPs are precise thinkers who love abstract theories and complex problems. Endlessly curious, they find logical flaws and build elegant frameworks — often in their own minds.",
+    strengths: ["Exceptional logical analysis", "Original & inventive", "Open to new theories", "Objective & fair", "Capable of deep focus"],
+    challenges: ["Struggles with follow-through", "Can seem detached", "Overthinks & second-guesses", "Poor at practical matters", "Can be socially awkward"],
+    functions: [["Ti","Introverted Thinking","Dominant","Building precise internal logic — everything must make perfect sense internally."],["Ne","Extroverted Intuition","Auxiliary","A constant stream of ideas, possibilities, and theoretical connections."],["Si","Introverted Sensing","Tertiary","Personal experience informing your models and providing grounding."],["Fe","Extroverted Feeling","Inferior","Navigating social harmony and others' emotions can be challenging."]] },
+  ESTP: { name: "The Dynamo", tagline: "Bold, energetic, pragmatic",
+    description: "ESTPs are energetic pragmatists who live fully in the present. Quick-thinking and charismatic, they thrive in fast-paced environments and the thrill of immediate problem-solving.",
+    strengths: ["Action-oriented", "Quick-thinking & perceptive", "Great in a crisis", "Charismatic & bold", "Highly adaptable"],
+    challenges: ["Impatient with theory", "Can be insensitive", "Risk-seeking", "Struggles with long-term thinking", "Can be blunt"],
+    functions: [["Se","Extroverted Sensing","Dominant","Fully immersed in the present — energized by action and sensory stimulation."],["Ti","Introverted Thinking","Auxiliary","Quick internal analysis to make sharp decisions in the moment."],["Fe","Extroverted Feeling","Tertiary","Reads the room and social dynamics with charm when engaged."],["Ni","Introverted Intuition","Inferior","Long-term abstract thinking takes effort."]] },
+  ESFP: { name: "The Entertainer", tagline: "Spontaneous, warm, fun-loving",
+    description: "ESFPs are spontaneous performers who bring joy and warmth everywhere. Highly attuned to people and the present moment, they have a gift for making life feel exciting.",
+    strengths: ["Warm & enthusiastic", "Highly perceptive of people", "Spontaneous & fun", "Adaptable & resourceful", "Brings people together"],
+    challenges: ["Avoids planning ahead", "Easily distracted", "Sensitive to criticism", "Struggles with conflict", "Overlooks consequences"],
+    functions: [["Se","Extroverted Sensing","Dominant","Fully alive in the present — energized by people, experiences, sensory richness."],["Fi","Introverted Feeling","Auxiliary","Deep personal values guiding your warmth and authentic care."],["Te","Extroverted Thinking","Tertiary","Practical organization that kicks in when it matters."],["Ni","Introverted Intuition","Inferior","Abstract future thinking takes more effort."]] },
+  ENFP: { name: "The Champion", tagline: "Enthusiastic, creative, free-spirited",
+    description: "ENFPs are curious spirits who see life as full of exciting possibilities. People-oriented and passionate about human potential, they love inspiring others to be their best.",
+    strengths: ["Enthusiastic & inspiring", "Highly creative", "Deeply empathetic", "Sees potential in others", "Adaptable & spontaneous"],
+    challenges: ["Hard to focus on one thing", "Can be disorganized", "Overthinks decisions", "Trouble following through", "Takes criticism to heart"],
+    functions: [["Ne","Extroverted Intuition","Dominant","Constantly scanning for possibilities and connections — ideas come in floods."],["Fi","Introverted Feeling","Auxiliary","Deep values guiding your passion for authenticity and human potential."],["Te","Extroverted Thinking","Tertiary","Organizational drive that channels enthusiasm into results."],["Si","Introverted Sensing","Inferior","Routines and details take more conscious effort."]] },
+  ENTP: { name: "The Visionary", tagline: "Quick-witted, strategic, inventive",
+    description: "ENTPs are quick-witted intellectuals who love a good debate and thrive on new ideas. Strategic and inventive, they see possibilities everywhere and enjoy challenging assumptions.",
+    strengths: ["Brilliant idea generation", "Quick-witted & articulate", "Strong strategic thinking", "Open-minded", "Energizing & inspiring"],
+    challenges: ["Loses interest after the idea", "Can be argumentative", "Neglects follow-through", "Overlooks emotional impact", "Spreads self thin"],
+    functions: [["Ne","Extroverted Intuition","Dominant","A stream of novel ideas and counterintuitive connections."],["Ti","Introverted Thinking","Auxiliary","Analyzing ideas for logical consistency — enjoys finding the flaw."],["Fe","Extroverted Feeling","Tertiary","Reading social dynamics, using charm and wit to engage."],["Si","Introverted Sensing","Inferior","Consistency and routine take effort."]] },
+  ESTJ: { name: "The Supervisor", tagline: "Organized, decisive, dependable",
+    description: "ESTJs are natural administrators who organize people and systems toward concrete goals. Decisive, reliable, and hardworking, they take responsibility seriously.",
+    strengths: ["Excellent organizer & leader", "Highly responsible", "Decisive & direct", "Strong work ethic", "Good at creating order"],
+    challenges: ["Can be inflexible", "Judgmental of other ways", "May overlook feelings", "Hard to admit mistakes", "Can be controlling"],
+    functions: [["Te","Extroverted Thinking","Dominant","Organizing and structuring the external world with logic and efficiency."],["Si","Introverted Sensing","Auxiliary","Drawing on established methods and experience to ensure reliability."],["Ne","Extroverted Intuition","Tertiary","Occasional creativity, especially under growth."],["Fi","Introverted Feeling","Inferior","Accessing and expressing personal values takes effort."]] },
+  ESFJ: { name: "The Provider", tagline: "Caring, social, harmony-seeking",
+    description: "ESFJs are warmhearted connectors who find deep meaning in caring for others and keeping harmony. They're attuned to the needs around them and work to create belonging.",
+    strengths: ["Deeply caring & supportive", "Builds community", "Organized & reliable", "Warm & socially skilled", "Dutiful & hardworking"],
+    challenges: ["Needs approval", "Sensitive to conflict", "Neglects own needs", "Struggles with change", "Can be controlling in caring"],
+    functions: [["Fe","Extroverted Feeling","Dominant","Acutely attuned to group harmony and others' emotions — your primary driver."],["Si","Introverted Sensing","Auxiliary","Rich personal memory informing your care and creating reliability."],["Ne","Extroverted Intuition","Tertiary","Imagining possibilities, especially in service of others."],["Ti","Introverted Thinking","Inferior","Objective analysis detached from people takes effort."]] },
+  ENFJ: { name: "The Teacher", tagline: "Inspiring, empathetic, charismatic",
+    description: "ENFJs are natural leaders who inspire and uplift everyone around them. Empathetic, charismatic, and idealistic, they have a rare gift for bringing out the best in others.",
+    strengths: ["Charismatic leader", "Deeply empathetic", "Excellent communicator", "Strong ethics", "Organized & decisive"],
+    challenges: ["Overextends for others", "Prone to burnout", "Can be too idealistic", "Struggles with conflict", "May lose sense of self"],
+    functions: [["Fe","Extroverted Feeling","Dominant","Powerfully attuned to others' emotional states — you lead with warmth and vision."],["Ni","Introverted Intuition","Auxiliary","Long-range vision informing your leadership and strategy."],["Se","Extroverted Sensing","Tertiary","Present-moment awareness that makes you energizing."],["Ti","Introverted Thinking","Inferior","Detached logical analysis can feel foreign."]] },
+  ENTJ: { name: "The Commander", tagline: "Bold, strategic, driven",
+    description: "ENTJs are natural executives combining vision, strategy, and decisive leadership. They see inefficiency as a problem to solve and naturally take charge.",
+    strengths: ["Exceptional strategic leader", "Decisive & confident", "Highly efficient", "Visionary long-term thinker", "Inspiring & commanding"],
+    challenges: ["Can be domineering", "Impatient with slow pace", "May neglect emotions", "Ruthlessly critical", "Workaholic tendencies"],
+    functions: [["Te","Extroverted Thinking","Dominant","Reorganizing the external world with bold, logical efficiency."],["Ni","Introverted Intuition","Auxiliary","Long-range strategic vision — seeing where things are heading."],["Se","Extroverted Sensing","Tertiary","Awareness of the immediate environment, adding presence to leadership."],["Fi","Introverted Feeling","Inferior","Accessing personal feelings and others' needs takes effort."]] },
+};
+
+// dimension-based MBTI growth tips
+const DIM_TIPS = {
+  E:"You recharge around people — build in a little quiet reflection so your decisions aren't purely reactive.",
+  I:"Protect your alone time, and also schedule small social touchpoints so rest doesn't tip into isolation.",
+  S:"You're grounded in the concrete — stretch yourself now and then by asking, 'what could this become?'",
+  N:"Your ideas soar — keep them useful by writing down one concrete next step for each.",
+  T:"You lead with logic — pause to weigh the human impact before you finalize a decision.",
+  F:"You honor your values — practice stating a hard truth kindly when the situation calls for it.",
+  J:"You love closure — leave a little room to revise plans as new information arrives.",
+  P:"You love keeping options open — pick a 'good enough' deadline so loops actually close.",
+};
+
+// ── DATA: Enneagram ────────────────────────────────────────────────────────
+const enneagramTypes = [
+  { number:1, name:"The Perfectionist", alt:"Reformer", short:"Perfectionist", center:"body", col:"#C17A4F",
+    motivation:"Integrity & improvement — to be good, right, and to better the world",
+    fear:"Being corrupt, wrong, or morally imperfect", desire:"To be good, ethical, and have integrity",
+    strengths:["Principled & ethical","Disciplined & responsible","Detail-oriented","Driven to improve things","Strong moral compass"],
+    challenges:["Harsh inner critic","Perfectionism & rigidity","Difficulty relaxing","Judgmental","Resentment from repressed anger"],
+    growth:["Practice 'good enough' — leave one task at 80% and notice the world keeps turning.","When you catch a harsh thought, ask 'would I say this to a friend?'","Schedule genuine rest and play that has no productive purpose.","Let small mistakes stand uncorrected; flexibility is a strength, not a failure."],
+    pitfalls:[{c:"A relentless inner critic",f:"Name the critic and talk back. Swap 'I should be better' for 'I'm doing my best, and that's allowed.'"},{c:"Rigidity when plans change",f:"Build a 'plan B' on purpose, so flexibility feels like part of the plan, not a loss of control."},{c:"Resentment from holding everything in",f:"Let yourself feel and express irritation in small, healthy doses before it builds up."}],
+    wings:{prev:9,next:2}, wingDescs:{9:"1w9 — The Idealist. Quieter and more philosophical; the inner critic runs deep but calm. More detached and reflective.", 2:"1w2 — The Advocate. Warmer and more interpersonal; their drive to improve is aimed at helping others. More emotionally available."} },
+  { number:2, name:"The Giver", alt:"Helper", short:"Giver", center:"heart", col:"#C99483",
+    motivation:"Love & connection — to be needed and loved through giving",
+    fear:"Being unwanted, unloved, or seen as needy", desire:"To feel loved and appreciated",
+    strengths:["Warm & generous","Attuned to others' needs","Nurturing & supportive","Builds deep connection","Emotionally intuitive"],
+    challenges:["Neglects own needs","People-pleasing","Struggles to receive","Can become resentful","Repressed pride"],
+    growth:["Check in daily: 'What do I need right now?' — and act on at least one answer.","Practice receiving: let someone help you without repaying it immediately.","Notice when help is truly wanted vs. when you're giving to feel needed.","Say no to one request this week without over-explaining."],
+    pitfalls:[{c:"Neglecting your own needs",f:"Schedule your own care like you'd schedule helping someone else. It's sustainable, not selfish."},{c:"Quiet resentment when unappreciated",f:"Ask directly for what you need instead of hoping others notice. Clear is kind."},{c:"Tying your worth to being needed",f:"Spend time with people who ask nothing of you, and practice being valued for who you are."}],
+    wings:{prev:1,next:3}, wingDescs:{1:"2w1 — The Servant. More principled in their helping, with a moral dimension to their care. More self-critical.", 3:"2w3 — The Host. More outgoing and image-aware; gives partly to be admired. More charming and ambitious."} },
+  { number:3, name:"The Performer", alt:"Achiever", short:"Achiever", center:"heart", col:"#D8A24A",
+    motivation:"Success & admiration — to be valuable, accomplished, and admired",
+    fear:"Being worthless or a failure", desire:"To feel valuable and worthwhile",
+    strengths:["Hardworking & goal-driven","Highly adaptable","Charismatic & polished","Efficient & results-focused","Inspiring to others"],
+    challenges:["Over-identifies with image","Emotional detachment","Workaholism","Can be inauthentic","Fear of failure"],
+    growth:["Set aside time where you produce nothing — practice simply 'being.'","Share a real feeling or a failure with someone you trust this week.","Define success by your own values, not just outside applause.","Notice when you're 'performing' a version of yourself and let the mask slip a little."],
+    pitfalls:[{c:"Over-identifying with achievement",f:"List things you like about yourself that have nothing to do with success."},{c:"Losing touch with real feelings",f:"Pause daily to ask 'how do I actually feel?' before 'how do I look?'"},{c:"Workaholism & burnout",f:"Protect non-negotiable rest. Treat downtime as part of performing well, not the opposite of it."}],
+    wings:{prev:2,next:4}, wingDescs:{2:"3w2 — The Charmer. More people-oriented; achievement is tied to relationships. Warmer and more outwardly focused.", 4:"3w4 — The Professional. More introspective and creative; wants to succeed in ways that feel unique and authentic."} },
+  { number:4, name:"The Romantic", alt:"Individualist", short:"Individualist", center:"heart", col:"#9E6F66",
+    motivation:"Authenticity & meaning — to find a unique identity and to feel deeply",
+    fear:"Having no identity or personal significance", desire:"To find themselves and their significance",
+    strengths:["Deeply creative","Emotionally attuned","Authentic & individual","Capacity for great depth","Meaning-making"],
+    challenges:["Moodiness & melancholy","Self-doubt & envy","Feeling misunderstood","Self-absorption","Romanticizing what's absent"],
+    growth:["When 'something's missing' shows up, name three things you already have.","Turn feelings into something concrete — create, journal, or move your body.","Resist romanticizing what's absent; practice being present with what is.","Build small, steady routines — a gift to your future self on heavy days."],
+    pitfalls:[{c:"Dwelling on what's missing",f:"Gently shift from 'what I lack' to 'what's here.' A short gratitude list re-anchors you."},{c:"Feeling chronically misunderstood",f:"Risk being seen as ordinary sometimes — connection grows from common ground, not just uniqueness."},{c:"Mood-driven decisions",f:"Wait out big feelings before acting; revisit the choice once the wave has passed."}],
+    wings:{prev:3,next:5}, wingDescs:{3:"4w3 — The Aristocrat. More ambitious and outward-facing; wants recognition for their uniqueness. More productive.", 5:"4w5 — The Bohemian. More withdrawn and intellectual; depth of feeling pairs with love of ideas. More reclusive."} },
+  { number:5, name:"The Observer", alt:"Investigator", short:"Investigator", center:"head", col:"#8C8170",
+    motivation:"Knowledge & self-sufficiency — to understand the world and be capable",
+    fear:"Being overwhelmed, incompetent, or invaded", desire:"To be capable and knowledgeable",
+    strengths:["Analytical & insightful","Deep capacity for focus","Self-sufficient","Innovative thinker","Objective & perceptive"],
+    challenges:["Social withdrawal","Emotional detachment","Hoards time & energy","Analysis paralysis","Difficulty with intimacy"],
+    growth:["Share your thoughts and feelings before you feel 100% ready — connection beats perfect prep.","Get into your body: walks, movement, anything out of your head and into the world.","Practice generosity with your time and energy in small doses.","Join in before you've fully figured it out; experience teaches what observing can't."],
+    pitfalls:[{c:"Withdrawing and isolating",f:"Schedule low-pressure social contact so connection doesn't depend on how you feel that day."},{c:"Hoarding time and energy",f:"Give a little more than feels comfortable; you usually have more to give than you fear."},{c:"Living in your head",f:"Pair every big idea with one small action step."}],
+    wings:{prev:4,next:6}, wingDescs:{4:"5w4 — The Iconoclast. More introspective and emotionally engaged; knowledge colored by creativity and meaning.", 6:"5w6 — The Problem-Solver. More systematic and team-oriented; knowledge applied to security. More grounded but anxious."} },
+  { number:6, name:"The Loyal Skeptic", alt:"Loyalist", short:"Loyalist", center:"head", col:"#A98A5E",
+    motivation:"Security & support — to find reliable guidance and feel safe",
+    fear:"Being without support, guidance, or certainty", desire:"To have security and feel supported",
+    strengths:["Deeply loyal","Strategic & risk-aware","Responsible & hardworking","Great troubleshooter","Builds strong communities"],
+    challenges:["Anxiety & worry","Over-cautiousness","Distrusts own judgment","Can be reactive","Conflicted about authority"],
+    growth:["Notice worst-case thinking and ask, 'what's the most likely outcome, not the worst?'","Trust your own judgment on small decisions without seeking reassurance.","Name what's going right — your mind defaults to scanning for risk.","Act despite doubt; courage is feeling the fear and moving anyway."],
+    pitfalls:[{c:"Anxiety & worst-case thinking",f:"Write the worry down, then write the realistic outcome beside it. Most fears shrink on paper."},{c:"Doubting your own decisions",f:"Keep a log of times your judgment was right — evidence quiets the inner skeptic."},{c:"Seeking constant reassurance",f:"Make a small call on your own first, then check in. Build self-trust gradually."}],
+    wings:{prev:5,next:7}, wingDescs:{5:"6w5 — The Defender. More introverted and intellectual; security through knowledge and self-reliance. More serious.", 7:"6w7 — The Buddy. More outgoing and optimistic; uses humor and connection to manage anxiety. More sociable."} },
+  { number:7, name:"The Epicure", alt:"Enthusiast", short:"Enthusiast", center:"head", col:"#DD934B",
+    motivation:"Experience & freedom — to taste all of life and avoid pain",
+    fear:"Being deprived, trapped, or stuck in pain", desire:"To be happy, satisfied, and free",
+    strengths:["Enthusiastic & optimistic","Spontaneous & fun","Highly inventive","Great at reframing","Energizes others"],
+    challenges:["Difficulty committing","Avoids pain & depth","Scattered attention","Impulsiveness","Can be self-centered"],
+    growth:["Stay with one thing to completion before chasing the next.","Let yourself feel hard emotions instead of reframing them away — depth is its own reward.","Commit to something and notice the freedom that lives inside a chosen limit.","Build a little quiet stillness into your day, even when it feels boring at first."],
+    pitfalls:[{c:"Difficulty committing & following through",f:"Pick one priority and protect it. Finishing brings a deeper joy than starting."},{c:"Avoiding pain by staying busy",f:"When a hard feeling shows up, sit with it for five minutes before distracting. It won't break you."},{c:"Scattered attention",f:"Limit your options on purpose — fewer choices, more presence."}],
+    wings:{prev:6,next:8}, wingDescs:{6:"7w6 — The Entertainer. More loyal and relationship-oriented; fun comes with a thread of anxiety. Warmer and cooperative.", 8:"7w8 — The Realist. More driven and assertive; enthusiasm meets a push for impact. More intense and entrepreneurial."} },
+  { number:8, name:"The Protector", alt:"Challenger", short:"Protector", center:"body", col:"#AB5740",
+    motivation:"Control & self-reliance — to protect themselves and those they love",
+    fear:"Being controlled, harmed, or violated", desire:"To protect themselves and steer their own course",
+    strengths:["Assertive & decisive","Protective of others","Confident & direct","Excellent under pressure","Champion of the vulnerable"],
+    challenges:["Difficulty with vulnerability","Confrontational & intense","Can be domineering","Slow to trust","Denies own softness"],
+    growth:["Let trusted people see your softer side; vulnerability is strength, not weakness.","Pause before responding with full force — not everything is a battle.","Ask others for input before deciding; share a little control.","Notice tenderness when it arises and let yourself feel it."],
+    pitfalls:[{c:"Difficulty showing vulnerability",f:"Practice saying 'that hurt' or 'I need help' with one safe person. It builds deeper trust."},{c:"Coming on too strong",f:"Read the room before acting; aim your intensity only where it's truly needed."},{c:"Struggling to trust others",f:"Let someone earn small trust and follow through — connection requires a little risk."}],
+    wings:{prev:7,next:9}, wingDescs:{7:"8w7 — The Maverick. More expansive and appetite-driven; bold energy meets love of experience. More entrepreneurial.", 9:"8w9 — The Bear. More calm and diplomatic; intensity tempered by a desire for peace. More patient and quietly powerful."} },
+  { number:9, name:"The Mediator", alt:"Peacemaker", short:"Peacemaker", center:"body", col:"#7E6248",
+    motivation:"Inner & outer harmony — to have peace of mind and avoid conflict",
+    fear:"Loss of connection, fragmentation, conflict", desire:"Peace of mind and inner harmony",
+    strengths:["Accepting & non-judgmental","Excellent mediator","Calming presence","Open-minded & inclusive","Empathetic & supportive"],
+    challenges:["Conflict avoidance","Self-forgetting","Procrastination","Hard to know own wants","Passive-aggression"],
+    growth:["Notice and state your own opinion, even on small things.","Tackle one task you've been putting off; momentum builds energy.","Let small conflicts happen — your voice matters as much as the peace.","Set your own priorities each morning before merging into everyone else's."],
+    pitfalls:[{c:"Self-forgetting & merging with others",f:"Ask 'what do I want?' daily and honor at least one answer. Your wants are not a problem."},{c:"Procrastination & inertia",f:"Break tasks into tiny steps and start with a two-minute version. Starting is the hard part."},{c:"Avoiding healthy conflict",f:"Practice gentle honesty; 'I see it differently' protects a relationship, it doesn't threaten it."}],
+    wings:{prev:8,next:1}, wingDescs:{8:"9w8 — The Referee. More assertive and grounded; can act decisively when needed. More comfortable with confrontation.", 1:"9w1 — The Dreamer. More principled and idealistic; ethical concern joins the 9's acceptance. More purposeful but self-critical."} },
+];
+
+const centerInfo = {
+  body:  { label:"Body", full:"Body / Gut Center", members:[8,9,1], col:"#AB5740", emotion:"Anger", desc:"Meets the world through instinct, action, and gut feeling. The core theme is anger — expressed (8), suppressed (9), or turned into perfectionism (1). The question: 'Do I have control here?'" },
+  heart: { label:"Heart", full:"Heart Center", members:[2,3,4], col:"#C99483", emotion:"Shame", desc:"Responds through emotion and image. The core theme is shame — answered by giving (2), achieving (3), or standing apart (4). The question: 'Am I loved and worthy?'" },
+  head:  { label:"Mind", full:"Head / Mind Center", members:[5,6,7], col:"#8C8170", emotion:"Fear", desc:"Responds through thinking and strategy. The core theme is fear — managed by withdrawing (5), seeking security (6), or planning fun (7). The question: 'Am I safe and prepared?'" },
+};
+
+// Integration (growth) & disintegration (stress) directions + 5-state spectrum
+const ENN_DYNAMICS = {
+  1: { growth:7, stress:4, states:{
+    exCalm:"Deeply at peace — you accept imperfection, lighten up, and embrace spontaneity and joy like a healthy 7.",
+    calm:"Loosening your grip — you let go of the 'shoulds,' allow some fun, and trust that good doesn't have to mean perfect.",
+    normal:"Principled and responsible, with a steady inner standard — and a quiet inner critic always nearby.",
+    stress:"Turning inward and moody like a 4 — self-critical, disappointed, and easily hurt.",
+    exStress:"Withdrawn and melancholic, convinced nothing measures up, including yourself." } },
+  2: { growth:4, stress:8, states:{
+    exCalm:"Wonderfully whole — you tend to your own feelings and needs first, becoming authentic and self-nurturing like a healthy 4.",
+    calm:"Turning care inward — you honor your own emotions and give from fullness, not emptiness.",
+    normal:"Warm, generous, and attuned to others — sometimes at the cost of your own needs.",
+    stress:"Getting forceful and demanding like an 8 — blunt about how much you've given and what you're owed.",
+    exStress:"Controlling and confrontational, lashing out when your care goes unseen." } },
+  3: { growth:6, stress:9, states:{
+    exCalm:"Grounded and loyal — you commit to people and a cause beyond image, cooperative and trustworthy like a healthy 6.",
+    calm:"Slowing to connect — you value teamwork over applause and let others see the real you.",
+    normal:"Driven, adaptable, and accomplished — focused on goals and being seen to succeed.",
+    stress:"Checking out like a 9 — going numb, disengaged, and running on autopilot.",
+    exStress:"Apathetic and lost, coasting on image while feeling empty inside." } },
+  4: { growth:1, stress:2, states:{
+    exCalm:"Beautifully balanced — you act on your values with calm discipline and clarity like a healthy 1.",
+    calm:"Steadying yourself — you channel feeling into purposeful action instead of waiting for the mood.",
+    normal:"Deep, creative, and authentic — attuned to emotion, with a pull toward what's missing.",
+    stress:"Clinging like a 2 — over-giving, people-pleasing, and needing to be needed.",
+    exStress:"Dependent and self-effacing, losing yourself trying to secure others' love." } },
+  5: { growth:8, stress:7, states:{
+    exCalm:"Powerfully present — you act with confidence and decisiveness, engaging the world boldly like a healthy 8.",
+    calm:"Stepping in — you move from your head into action and take up space.",
+    normal:"Curious, perceptive, and self-contained — happiest understanding things from a safe distance.",
+    stress:"Scattering like a 7 — restless, distracted, and chasing too many things at once.",
+    exStress:"Frantic and impulsive, bouncing around to escape feeling overwhelmed." } },
+  6: { growth:9, stress:3, states:{
+    exCalm:"Deeply settled — you trust yourself and the world, relaxed and steady like a healthy 9.",
+    calm:"Easing the worry — you stop bracing for disaster and trust your own footing.",
+    normal:"Loyal, alert, and prepared — scanning for risk and seeking solid ground.",
+    stress:"Pushing like a 3 — overworking, competitive, and image-conscious to feel secure.",
+    exStress:"Driven and frantic, chasing achievement to outrun your anxiety." } },
+  7: { growth:5, stress:1, states:{
+    exCalm:"Wonderfully focused — you go deep, savor one thing fully, and find richness in stillness like a healthy 5.",
+    calm:"Settling in — you slow down, commit, and discover depth is its own adventure.",
+    normal:"Upbeat, spontaneous, and full of plans — always reaching for the next exciting thing.",
+    stress:"Turning critical like a 1 — perfectionistic, impatient, and sharply judgmental.",
+    exStress:"Rigid and faultfinding, frustrated that nothing lives up to what you imagined." } },
+  8: { growth:2, stress:5, states:{
+    exCalm:"Big-hearted strength — you open up, protect with tenderness, and care generously like a healthy 2.",
+    calm:"Softening — you lower your guard, trust others, and lead with warmth as well as power.",
+    normal:"Strong, direct, and protective — taking charge and guarding against being controlled.",
+    stress:"Withdrawing like a 5 — secretive, guarded, and pulling away to strategize alone.",
+    exStress:"Isolated and suspicious, hiding behind walls to feel safe." } },
+  9: { growth:3, stress:6, states:{
+    exCalm:"Vibrantly alive — you know what you want and go after it with energy and focus like a healthy 3.",
+    calm:"Waking up — you set priorities, take action, and let your own goals matter.",
+    normal:"Easygoing, accepting, and harmonious — keeping the peace, sometimes by tuning yourself out.",
+    stress:"Getting anxious like a 6 — worried, reactive, and unsure who to trust.",
+    exStress:"Gripped by worst-case worry, frozen between holding on and taking action." } },
+};
+const STATE_ORDER = ["exCalm","calm","normal","stress","exStress"];
+const STATE_META = {
+  exCalm:  { label:"Extreme calm",   dir:"growth", col:"#A9772B" },
+  calm:    { label:"Calm",           dir:"growth", col:"#CFA254" },
+  normal:  { label:"Normal",         dir:"none",   col:"#9C8B6E" },
+  stress:  { label:"Stressed",       dir:"stress", col:"#B5654D" },
+  exStress:{ label:"Extreme stress", dir:"stress", col:"#8C4A36" },
+};
+const GROWTH_COL = "#C39550";
+const STRESS_COL = "#9E5640";
+
+function getCombinedInsights(mbtiType, ennNum) {
+  const mData = mbtiData[mbtiType];
+  const eData = enneagramTypes[ennNum - 1];
+  const center = eData.center;
+  const isI = mbtiType[0] === "I", isN = mbtiType[1] === "N", isF = mbtiType[2] === "F", isP = mbtiType[3] === "P";
+  const out = [];
+  if (isI && [4,5,9].includes(ennNum)) out.push(["Doubly inward", `Both ${mbtiType} and Type ${ennNum} pull strongly inward. You likely have an exceptionally rich inner life and need more quiet alone-time than most people around you — a feature, not a flaw.`]);
+  if (!isI && [3,7,8].includes(ennNum)) out.push(["Outward momentum", `Both ${mbtiType} and Type ${ennNum} are energized by the outside world — people, activity, results. You're built for engagement, though watch for getting worn out from over-extending.`]);
+  if (isN && center === "head") out.push(["A busy mind", `${mbtiType}'s Intuition and Type ${ennNum}'s head-center orientation both live in ideas. You process deeply before acting, and your inner chatter rarely fully quiets.`]);
+  if (isF && center === "heart") out.push(["A big heart", `${mbtiType}'s Feeling preference and Type ${ennNum}'s heart center both put emotion first. You navigate the world through feeling, and your bonds with others mean everything.`]);
+  if (!isN && center === "body") out.push(["Grounded in the present", `${mbtiType}'s Sensing and Type ${ennNum}'s body-center orientation both anchor you in the now. You're practical, hands-on, and you trust what's right in front of you.`]);
+  if (!isF && center === "head") out.push(["A natural problem-solver", `${mbtiType}'s Thinking and Type ${ennNum}'s head center both lean toward figuring things out. You're great at solving problems, though you may miss the feelings swirling underneath.`]);
+  if ([2,9].includes(ennNum) && (isF || ["INFP","INFJ"].includes(mbtiType))) out.push(["A peacekeeping streak", `Both your types love keeping the peace. That makes you gentle and attuned — but watch the habit of tucking your own needs away just to avoid a fuss.`]);
+  if ([1,3].includes(ennNum) && !isP) out.push(["Built for goals", `Your Judging preference and Type ${ennNum}'s drive make you wonderfully goal-oriented. You hold high standards and feel happiest when you're making real progress.`]);
+  if (isN && [1,4,6].includes(ennNum)) out.push(["Values meet vision", `${mbtiType}'s Intuition and Type ${ennNum}'s convictions combine into someone driven by ideals. You're likely devoted to something bigger than yourself.`]);
+  if (out.length === 0) out.push(["One of a kind", `${mbtiType} and Type ${ennNum} make an uncommon pairing. Your MBTI says the how — ${mData.tagline.toLowerCase()}. Your Enneagram says the why — ${eData.motivation.split("—")[1].trim()}.`]);
+  return out;
+}
+
+// ── QUIZ BANKS (plain-language, original wording) ──────────────────────────────
+const MBTI_BANK = {
+  EI: [
+    { q:"Which sounds more like you?", options:[["Spending time with people gives me energy.","E"],["Spending time alone helps me recharge.","I"]] },
+    { q:"At a party, you're more likely to…", options:[["Jump in, mingle, and meet lots of people.","E"],["Stick with a few people you know.","I"]] },
+    { q:"When working through a problem, you tend to…", options:[["Talk it out loud to think it through.","E"],["Work it out quietly in your head first.","I"]] },
+    { q:"You'd describe your circle as…", options:[["A wide group of many friends.","E"],["A few close, deep friendships.","I"]] },
+    { q:"After a big social event, you usually feel…", options:[["Energized and ready for more.","E"],["Drained and in need of quiet.","I"]] },
+  ],
+  SN: [
+    { q:"You pay more attention to…", options:[["The facts and details in front of you.","S"],["Patterns, ideas, and possibilities.","N"]] },
+    { q:"You'd rather a task come with…", options:[["Clear, step-by-step instructions.","S"],["A big-picture goal and freedom to figure it out.","N"]] },
+    { q:"Your mind spends more time on…", options:[["What's happening right now.","S"],["What might happen down the road.","N"]] },
+    { q:"You tend to trust…", options:[["Experience and what's proven to work.","S"],["Hunches and where an idea could lead.","N"]] },
+    { q:"You're more likely to describe things…", options:[["Literally and concretely.","S"],["With metaphors and deeper meaning.","N"]] },
+  ],
+  TF: [
+    { q:"When making a decision, you lead with…", options:[["Logic — what makes the most sense.","T"],["Feelings — how it affects people.","F"]] },
+    { q:"It's more important to you to be…", options:[["Honest and fair, even if it's blunt.","T"],["Kind and tactful, even if it's less direct.","F"]] },
+    { q:"You're more convinced by…", options:[["Solid reasons and evidence.","T"],["What feels right and who it helps.","F"]] },
+    { q:"In a disagreement, you focus first on…", options:[["What's actually correct.","T"],["How everyone is feeling.","F"]] },
+    { q:"You'd rather be known for being…", options:[["Competent and truthful.","T"],["Warm and compassionate.","F"]] },
+  ],
+  PJ: [
+    { q:"You feel more comfortable when…", options:[["Things are planned and decided ahead.","J"],["Your options stay open and flexible.","P"]] },
+    { q:"Your space and to-do list are usually…", options:[["Organized and tidy.","J"],["Loose and a little messy.","P"]] },
+    { q:"Deadlines make you want to…", options:[["Finish early and check it off.","J"],["Work in bursts, often near the end.","P"]] },
+    { q:"You generally prefer…", options:[["Routines and a set schedule.","J"],["Spontaneity and winging it.","P"]] },
+    { q:"Locking a decision in early feels…", options:[["Calming — it's settled.","J"],["Limiting — I'd rather keep exploring.","P"]] },
+  ],
+};
+
+const ENN_BANK = {
+  1: ["I have a strong sense of right and wrong, and I notice when things aren't done properly.","I push myself to improve things, and I'm hard on myself when they're not perfect.","I spot mistakes and details others miss, and I want to fix them.","I have a strong inner voice telling me I should be doing better."],
+  2: ["I'm very tuned in to what others need, and I love being there to help.","I often put everyone else first and forget about my own needs.","I feel best when people rely on me and appreciate my care.","It's hard for me to ask for help or admit I need something."],
+  3: ["I'm driven to succeed, and I like being recognized for what I achieve.","I adapt myself to make a good impression, and I really dislike failing.","I'm focused on my goals and on being the best at what I do.","I can lose touch with my real feelings while chasing success."],
+  4: ["I feel things deeply and want my life to be authentic and meaningful.","I sometimes feel different from everyone else, like something is missing.","I'm drawn to beauty, emotion, and what makes me unique.","I can dwell on what I lack or envy what others seem to have."],
+  5: ["I love understanding how things work, and I need plenty of alone time.","I'd rather observe and think things through than jump into the middle of things.","I conserve my energy and prefer to watch before I act.","I feel drained when people want too much of my time or emotion."],
+  6: ["I think ahead about what could go wrong so I can be prepared.","I really value loyalty and people I trust, though I can be anxious or doubtful.","I scan for risks and like having a backup plan.","I question authority and second-guess my own decisions."],
+  7: ["I love new experiences and keeping life fun, exciting, and full of options.","I avoid being bored or stuck, and I tend to jump from one thing to the next.","I stay optimistic and reframe problems into possibilities.","I tend to dodge painful feelings by staying busy and upbeat."],
+  8: ["I'm direct and strong, and I stand up for myself and the people I care about.","I don't like feeling controlled, and it's hard for me to show vulnerability.","I take charge and protect the people around me.","I'd rather be in control than feel weak or dependent."],
+  9: ["I mostly want peace and harmony, and I'll go along with things to avoid conflict.","I can lose track of what I actually want, and I tend to put things off.","I'm easygoing and can see everyone's point of view.","I numb out or distract myself to avoid tension."],
+};
+const RATING = [["Not me",0],["A little",1],["Mostly me",2],["Very me",3]];
+
+function buildQuiz(length) {
+  const mPer = length === "long" ? 5 : 3;
+  const ePer = length === "long" ? 4 : 2;
+  const mbti = [];
+  for (let r = 0; r < mPer; r++) for (const dim of ["EI","SN","TF","PJ"]) mbti.push({ dim, ...MBTI_BANK[dim][r] });
+  const enn = [];
+  for (let r = 0; r < ePer; r++) for (let n = 1; n <= 9; n++) enn.push({ enn:n, text: ENN_BANK[n][r] });
+  return { mbti, enn, ePer };
+}
+
+// ── THEME — earthy pastels, browns only ─────────────────────────────────────
+const C = {
+  cream:"#FBF4E9", creamDeep:"#F4E9D6", tan:"#EBDCC2", sand:"#DDC8A6",
+  clay:"#CBA48D", clayDeep:"#B0856B",
+  caramel:"#C0916A", caramelDeep:"#A4744C", cocoa:"#7C5942", cocoaDeep:"#5F4231",
+  taupe:"#A98D71", honey:"#DCB377", honeyDeep:"#C39550",
+  ink:"#4E3B2C", body:"#705842", soft:"#977C66", line:"rgba(124,89,66,0.15)",
+};
+const FONT_BODY = "'Quicksand', 'Trebuchet MS', sans-serif";
+const FONT_DISP = "'Baloo 2', 'Comic Sans MS', cursive, sans-serif";
+const surface = "rgba(255,255,255,0.94)";
+
+// background tile (paws + bones)
+const PAW_P = `<g><ellipse cx='12' cy='16' rx='6.2' ry='5.2'/><ellipse cx='4.6' cy='10.2' rx='2.7' ry='3.5'/><ellipse cx='19.4' cy='10.2' rx='2.7' ry='3.5'/><ellipse cx='9' cy='5.4' rx='2.5' ry='3.3'/><ellipse cx='15' cy='5.4' rx='2.5' ry='3.3'/></g>`;
+const BONE_P = `<g><rect x='8' y='4' width='30' height='8.5' rx='4.2'/><circle cx='8' cy='4.5' r='5.4'/><circle cx='8' cy='12' r='5.4'/><circle cx='38' cy='4.5' r='5.4'/><circle cx='38' cy='12' r='5.4'/></g>`;
+const TILE = `<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176'><g fill='#DCC9AC'>`
+  + `<g transform='translate(26,32) scale(1.05)'>${PAW_P}</g>`
+  + `<g transform='translate(108,40) rotate(24)'>${BONE_P}</g>`
+  + `<g transform='translate(128,128) scale(0.85) rotate(-16)'>${PAW_P}</g>`
+  + `<g transform='translate(20,120) rotate(48)'>${BONE_P}</g>`
+  + `</g></svg>`;
+const BG_URL = `url("data:image/svg+xml,${encodeURIComponent(TILE)}")`;
+const PatternBg = () => (
+  <div style={{ position:"fixed", inset:0, backgroundImage:BG_URL, backgroundSize:"176px 176px", opacity:0.55, pointerEvents:"none", zIndex:0 }} />
+);
+const FRAME = { background:C.cream, borderRadius:34, border:`1.5px solid ${C.tan}`, boxShadow:"0 14px 46px rgba(124,89,66,0.18)" };
+
+function Paw({ size = 13, color = C.caramel, style = {} }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={style}>
+      <ellipse cx="12" cy="16" rx="6.2" ry="5.2" />
+      <ellipse cx="4.6" cy="10.2" rx="2.7" ry="3.5" />
+      <ellipse cx="19.4" cy="10.2" rx="2.7" ry="3.5" />
+      <ellipse cx="9" cy="5.4" rx="2.5" ry="3.3" />
+      <ellipse cx="15" cy="5.4" rx="2.5" ry="3.3" />
+    </svg>
+  );
+}
+function PawEmblem({ size = 64 }) {
+  return (
+    <div style={{ width:size, height:size, borderRadius:"50%", background:`linear-gradient(135deg,${C.tan},${C.sand})`, display:"inline-flex", alignItems:"center", justifyContent:"center", boxShadow:"0 5px 14px rgba(124,89,66,0.14)", border:"3px solid white" }}>
+      <Paw size={size*0.5} color={C.cocoa} />
+    </div>
+  );
+}
+
+// ── Enneagram wheel (centers + connecting lines + type names) ──────────────────
+const WHEEL = (() => {
+  const W = 380, H = 344, cx = 190, cy = 160, ro = 100, ri = 62, numR = (ro + ri) / 2, lineR = ri - 2, labelR = ro + 16;
+  const pt = (r, deg) => { const a = deg * Math.PI / 180; return [cx + r * Math.sin(a), cy - r * Math.cos(a)]; };
+  const ang = (n) => (n % 9) * 40;
+  const sector = (a0, a1) => {
+    const [x0o,y0o]=pt(ro,a0),[x1o,y1o]=pt(ro,a1),[x1i,y1i]=pt(ri,a1),[x0i,y0i]=pt(ri,a0);
+    return `M ${x0o.toFixed(2)} ${y0o.toFixed(2)} A ${ro} ${ro} 0 0 1 ${x1o.toFixed(2)} ${y1o.toFixed(2)} L ${x1i.toFixed(2)} ${y1i.toFixed(2)} A ${ri} ${ri} 0 0 0 ${x0i.toFixed(2)} ${y0i.toFixed(2)} Z`;
+  };
+  const segs = [1,2,3,4,5,6,7,8,9].map(n => {
+    const c = ang(n); const [lx, ly] = pt(labelR, c);
+    return { n, path: sector(c-19, c+19), num: pt(numR, c), label:[lx, ly], anchor: lx < cx-6 ? "end" : lx > cx+6 ? "start" : "middle" };
+  });
+  const linePt = {}; [1,2,3,4,5,6,7,8,9].forEach(n => linePt[n] = pt(lineR, ang(n)));
+  return { W, H, segs, linePt };
+})();
+const segStyle = { 8:["body",1], 9:["body",0.82], 1:["body",0.66], 2:["heart",1], 3:["heart",0.82], 4:["heart",0.66], 5:["head",1], 6:["head",0.82], 7:["head",0.66] };
+
+function EnneagramWheel({ core, emphasis }) {
+  const cc = { body:centerInfo.body.col, heart:centerInfo.heart.col, head:centerInfo.head.col };
+  const lp = WHEEL.linePt;
+  const poly = (ns) => ns.map(n => `${lp[n][0].toFixed(2)},${lp[n][1].toFixed(2)}`).join(" ");
+  const dyn = core ? ENN_DYNAMICS[core] : null;
+  const emp = emphasis || core;
+  const arrow = (to, color, active, sfx) => {
+    const [x1,y1] = lp[core], [x2,y2] = lp[to];
+    const sx = x1+(x2-x1)*0.08, sy = y1+(y2-y1)*0.08, ex = x1+(x2-x1)*0.84, ey = y1+(y2-y1)*0.84;
+    return <line x1={sx.toFixed(2)} y1={sy.toFixed(2)} x2={ex.toFixed(2)} y2={ey.toFixed(2)} stroke={color} strokeWidth={active?3.4:1.8} strokeOpacity={active?1:0.3} strokeLinecap="round" markerEnd={`url(#arr-${sfx}${active?"":"-f"})`} />;
+  };
+  const empPt = emp ? WHEEL.segs[emp-1].num : null;
+  const empCol = emp ? enneagramTypes[emp-1].col : C.cocoa;
+  const head = (id, col, op) => (
+    <marker id={id} viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="5.6" markerHeight="5.6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill={col} fillOpacity={op} /></marker>
+  );
+  return (
+    <svg viewBox={`0 0 ${WHEEL.W} ${WHEEL.H}`} width="100%" style={{ maxWidth:380, display:"block", margin:"0 auto" }}>
+      <defs>{head("arr-g",GROWTH_COL,1)}{head("arr-g-f",GROWTH_COL,0.3)}{head("arr-s",STRESS_COL,1)}{head("arr-s-f",STRESS_COL,0.3)}</defs>
+      <polygon points={poly([3,6,9])} fill="none" stroke="rgba(95,66,49,0.18)" strokeWidth="1.4" strokeLinejoin="round" />
+      <polygon points={poly([1,4,2,8,5,7])} fill="none" stroke="rgba(95,66,49,0.18)" strokeWidth="1.4" strokeLinejoin="round" />
+      {dyn && arrow(dyn.growth, GROWTH_COL, emp === dyn.growth, "g")}
+      {dyn && arrow(dyn.stress, STRESS_COL, emp === dyn.stress, "s")}
+      {WHEEL.segs.map(s => {
+        const [grp, op] = segStyle[s.n];
+        const isEmp = s.n === emp, isCore = s.n === core;
+        const t = enneagramTypes[s.n-1];
+        const stroke = isEmp ? C.cocoaDeep : isCore ? C.cocoa : "#fff";
+        return (
+          <g key={s.n}>
+            <path d={s.path} fill={cc[grp]} fillOpacity={isEmp?1:op} stroke={stroke} strokeWidth={isEmp?3.5:isCore?2.6:2} strokeLinejoin="round" />
+            <text x={s.num[0]} y={s.num[1]} textAnchor="middle" dominantBaseline="central" fontFamily={FONT_DISP} fontWeight="800" fontSize={isEmp?18:14.5} fill="#fff">{s.n}</text>
+            <text x={s.label[0]} y={s.label[1]} textAnchor={s.anchor} dominantBaseline="central" fontFamily={FONT_DISP} fontWeight={isEmp||isCore?800:700} fontSize={isEmp?12:10.5} fill={isEmp?C.cocoaDeep:isCore?C.cocoa:t.col}>{t.short}</text>
+          </g>
+        );
+      })}
+      {empPt && (
+        <circle cx={empPt[0]} cy={empPt[1]} r="15" fill="none" stroke={empCol} strokeWidth="2.6">
+          <animate attributeName="opacity" values="0.9;0.15;0.9" dur="1.9s" repeatCount="indefinite" />
+          <animate attributeName="r" values="13;19;13" dur="1.9s" repeatCount="indefinite" />
+        </circle>
+      )}
+    </svg>
+  );
+}
+
+function EnneagramDynamics({ ennNum }) {
+  const [view, setView] = useState("normal");
+  const dyn = ENN_DYNAMICS[ennNum];
+  const meta = STATE_META[view];
+  const emphasis = meta.dir === "growth" ? dyn.growth : meta.dir === "stress" ? dyn.stress : ennNum;
+  const gT = enneagramTypes[dyn.growth-1], sT = enneagramTypes[dyn.stress-1];
+  const tgt = meta.dir === "growth" ? gT : meta.dir === "stress" ? sT : null;
+  return (
+    <Card accent={C.caramel}>
+      <h3 style={{ margin:"0 0 4px", fontWeight:700, fontSize:18, color:C.cocoa, fontFamily:FONT_DISP }}>The wheel: your growth & stress directions</h3>
+      <p style={{ color:C.soft, fontSize:13, lineHeight:1.7, margin:"0 0 14px", fontWeight:500 }}>
+        Your type doesn't stay still. When you feel <b style={{ color:GROWTH_COL }}>secure and growing</b>, you take on the best of one neighboring type (the gold arrow). When you're <b style={{ color:STRESS_COL }}>stressed</b>, you slide toward another (the rust arrow). Tap a state below to see how you tend to look and feel — and watch the wheel.
+      </p>
+
+      <div style={{ display:"flex", gap:6, marginBottom:6, flexWrap:"wrap" }}>
+        {STATE_ORDER.map(k => {
+          const m = STATE_META[k], on = view === k;
+          return (
+            <button key={k} onClick={() => setView(k)} style={{ flex:"1 1 auto", minWidth:78, padding:"10px 8px", borderRadius:13, cursor:"pointer", border: on ? `2.5px solid ${m.col}` : `2px solid ${C.line}`, background: on ? m.col : "white", color: on ? "#fff" : C.soft, fontFamily:FONT_DISP, fontWeight:700, fontSize:12, lineHeight:1.2, transition:"all 0.15s" }}>
+              {m.label}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ height:5, borderRadius:100, marginBottom:18, background:`linear-gradient(90deg,${STATE_META.exCalm.col},${STATE_META.calm.col},${STATE_META.normal.col},${STATE_META.stress.col},${STATE_META.exStress.col})` }} />
+
+      <EnneagramWheel core={ennNum} emphasis={emphasis} />
+
+      <div style={{ display:"flex", justifyContent:"center", gap:18, flexWrap:"wrap", margin:"14px 0 4px" }}>
+        <span style={{ display:"flex", alignItems:"center", gap:7, fontSize:12.5, color:C.body, fontWeight:600 }}><span style={{ width:22, height:0, borderTop:`3px solid ${GROWTH_COL}` }} /> Growth → Type {dyn.growth} ({gT.short})</span>
+        <span style={{ display:"flex", alignItems:"center", gap:7, fontSize:12.5, color:C.body, fontWeight:600 }}><span style={{ width:22, height:0, borderTop:`3px solid ${STRESS_COL}` }} /> Stress → Type {dyn.stress} ({sT.short})</span>
+      </div>
+
+      <div style={{ marginTop:12, padding:"16px 18px", borderRadius:18, background:`${meta.col}1c`, borderLeft:`4px solid ${meta.col}` }}>
+        <div style={{ fontFamily:FONT_DISP, fontWeight:800, fontSize:14, color:meta.col, marginBottom:5, letterSpacing:0.3 }}>{meta.label}</div>
+        <p style={{ margin:0, color:C.body, fontSize:13.5, lineHeight:1.75, fontWeight:500 }}>{dyn.states[view]}</p>
+        {tgt && <p style={{ margin:"8px 0 0", color:C.soft, fontSize:12, lineHeight:1.6, fontWeight:600 }}>You're borrowing traits from Type {tgt.number} — the {tgt.short}.</p>}
+      </div>
+
+      <div style={{ display:"flex", justifyContent:"center", gap:16, flexWrap:"wrap", marginTop:18, paddingTop:16, borderTop:`1.5px solid ${C.line}` }}>
+        {["body","heart","head"].map(k => {
+          const c = centerInfo[k];
+          return (
+            <div key={k} style={{ display:"flex", alignItems:"center", gap:7 }}>
+              <span style={{ width:14, height:14, borderRadius:"50%", background:c.col, display:"inline-block" }} />
+              <span style={{ fontSize:12.5, color:C.body, fontWeight:600 }}>{c.label} ({c.members.join(", ")})</span>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+function WingExplainer({ ennNum, wing }) {
+  const core = enneagramTypes[ennNum-1];
+  const pv = core.wings.prev, nx = core.wings.next;
+  const pT = enneagramTypes[pv-1], nT = enneagramTypes[nx-1];
+  const node = (t, isCore, isWing) => (
+    <div style={{ textAlign:"center", flex:"0 0 auto" }}>
+      <div style={{ position:"relative", width:isCore?58:44, height:isCore?58:44, margin:"0 auto", borderRadius:"50%", background: isCore?`linear-gradient(135deg,${t.col},${t.col}aa)`:`${t.col}2e`, border: isWing?`3px solid ${C.cocoaDeep}`:"3px solid transparent", display:"flex", alignItems:"center", justifyContent:"center", color: isCore?"#fff":t.col, fontFamily:FONT_DISP, fontWeight:800, fontSize:isCore?24:18 }}>
+        {t.number}
+      </div>
+      <div style={{ fontSize:11, color: isCore?C.cocoa:C.soft, fontWeight:700, marginTop:6 }}>{t.short}</div>
+      {isWing && <div style={{ fontSize:9.5, color:C.cocoaDeep, fontWeight:800, letterSpacing:1, textTransform:"uppercase", marginTop:1 }}>your wing</div>}
+    </div>
+  );
+  return (
+    <Card accent={core.col}>
+      <h3 style={{ margin:"0 0 4px", fontWeight:700, fontSize:18, color:C.cocoa, fontFamily:FONT_DISP }}>What's a wing?</h3>
+      <p style={{ color:C.body, fontSize:13.5, lineHeight:1.8, margin:"0 0 16px", fontWeight:500 }}>
+        Your wing is one of the two types sitting right next to yours on the circle — Type {pv} ({pT.short}) and Type {nx} ({nT.short}). You're still a {ennNum} at heart, but most people lean a little toward one neighbor, which adds extra flavor. A {ennNum}w{nx}, for example, is a Type {ennNum} with a dash of {nT.short}. Some people have a strong wing; others sit evenly between both — that's perfectly normal.
+      </p>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:18, padding:"6px 0 18px" }}>
+        {node(pT, false, wing === pv)}
+        <span style={{ color:C.sand, fontSize:20 }}>—</span>
+        {node(core, true, false)}
+        <span style={{ color:C.sand, fontSize:20 }}>—</span>
+        {node(nT, false, wing === nx)}
+      </div>
+      {wing
+        ? <div style={{ padding:14, background:`${core.col}16`, borderRadius:16, borderLeft:`4px solid ${core.col}` }}>
+            <Label color={core.col}>Your wing: {ennNum}w{wing}</Label>
+            <p style={{ color:C.body, fontSize:13, lineHeight:1.8, margin:0, fontWeight:500 }}>{core.wingDescs[wing]}</p>
+          </div>
+        : <div style={{ padding:14, background:`${C.honey}1f`, borderRadius:16 }}>
+            <p style={{ color:C.soft, fontSize:12.5, lineHeight:1.7, margin:0, fontWeight:600 }}>We didn't pin down a single wing for you. Read both below and see which feels closer:</p>
+          </div>}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginTop:12 }}>
+        {[pv, nx].map(w => (
+          <div key={w} style={{ padding:13, borderRadius:14, background:"white", border: wing===w?`2.5px solid ${core.col}`:`2px solid ${C.line}` }}>
+            <div style={{ fontFamily:FONT_DISP, fontWeight:700, fontSize:13.5, color:C.cocoa, marginBottom:4 }}>{ennNum}w{w}</div>
+            <p style={{ margin:0, color:C.body, fontSize:12, lineHeight:1.65, fontWeight:500 }}>{core.wingDescs[w]}</p>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function CentersTriad({ selected }) {
+  return (
+    <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
+      {["body","heart","head"].map(k => {
+        const ci = centerInfo[k];
+        const isSel = selected === k;
+        return (
+          <div key={k} style={{ background: isSel ? `${ci.col}1c` : surface, border:`2px solid ${isSel ? ci.col : C.line}`, borderRadius:20, padding:"18px 14px", textAlign:"center", boxShadow:"0 5px 14px rgba(124,89,66,0.05)" }}>
+            <div style={{ display:"flex", justifyContent:"center", gap:5, marginBottom:10 }}>
+              {ci.members.map(m => (
+                <div key={m} style={{ width:30, height:30, borderRadius:"50%", background:ci.col, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:FONT_DISP, fontWeight:800, fontSize:15 }}>{m}</div>
+              ))}
+            </div>
+            <div style={{ fontFamily:FONT_DISP, fontWeight:700, fontSize:16, color:C.cocoa }}>{ci.label}</div>
+            <div style={{ fontSize:11, color:ci.col, fontWeight:700, letterSpacing:1, textTransform:"uppercase", margin:"2px 0 8px" }}>{ci.emotion}</div>
+            <div style={{ fontSize:11.5, color:C.soft, lineHeight:1.5, fontWeight:500 }}>{ci.desc}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Results charts (enneagram-personality.com style breakdown) ─────────────────
+function EnnBreakdown({ scores, selected }) {
+  const rows = enneagramTypes.map(t => ({ n:t.number, name:t.name, col:t.col, pct: scores[t.number] || 0 }))
+    .sort((a,b) => b.pct - a.pct);
+  return (
+    <Card accent={C.caramel}>
+      <h3 style={{ margin:"0 0 4px", fontWeight:700, fontSize:18, color:C.cocoa, fontFamily:FONT_DISP }}>Your results breakdown</h3>
+      <p style={{ color:C.soft, fontSize:13, lineHeight:1.7, margin:"0 0 16px", fontWeight:500 }}>How strongly each Enneagram type came through in your answers. Your top match is Type {selected}.</p>
+      {rows.map(r => {
+        const top = r.n === selected;
+        return (
+          <div key={r.n} style={{ display:"flex", alignItems:"center", gap:10, marginBottom:9 }}>
+            <div style={{ width:26, height:26, borderRadius:"50%", background:r.col, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:FONT_DISP, fontWeight:800, fontSize:13, flexShrink:0, boxShadow: top?`0 0 0 3px ${r.col}44`:"none" }}>{r.n}</div>
+            <div style={{ width:108, flexShrink:0, fontSize:12.5, color: top?C.cocoa:C.body, fontWeight: top?700:600 }}>{r.name.replace("The ","")}</div>
+            <div style={{ flex:1, height:14, background:C.tan, borderRadius:100, overflow:"hidden" }}>
+              <div style={{ height:"100%", width:`${r.pct}%`, background:r.col, borderRadius:100, opacity: top?1:0.78, transition:"width 0.5s" }} />
+            </div>
+            <div style={{ width:38, textAlign:"right", fontSize:12.5, color:C.soft, fontWeight:700, fontFamily:FONT_DISP }}>{r.pct}%</div>
+          </div>
+        );
+      })}
+    </Card>
+  );
+}
+
+function MbtiBars({ scores }) {
+  const rows = [["EI","Extrovert","Introvert"],["SN","Sensing","iNtuition"],["TF","Thinking","Feeling"],["PJ","Judging","Perceiving"]];
+  return (
+    <Card accent={C.caramel}>
+      <h3 style={{ margin:"0 0 4px", fontWeight:700, fontSize:18, color:C.cocoa, fontFamily:FONT_DISP }}>Your preference strengths</h3>
+      <p style={{ color:C.soft, fontSize:13, lineHeight:1.7, margin:"0 0 16px", fontWeight:500 }}>How strongly you leaned toward each side in your answers.</p>
+      {rows.map(([dim, la, lb]) => {
+        const s = scores[dim]; const total = s.av + s.bv || 1;
+        const pa = Math.round(s.av/total*100), pb = 100 - pa;
+        const aWins = s.av >= s.bv;
+        return (
+          <div key={dim} style={{ marginBottom:14 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", fontSize:12.5, marginBottom:4, fontWeight:600 }}>
+              <span style={{ color: aWins?C.cocoa:C.soft, fontWeight: aWins?700:600 }}>{la} {pa}%</span>
+              <span style={{ color: !aWins?C.cocoa:C.soft, fontWeight: !aWins?700:600 }}>{pb}% {lb}</span>
+            </div>
+            <div style={{ display:"flex", height:14, borderRadius:100, overflow:"hidden", background:C.tan }}>
+              <div style={{ width:`${pa}%`, background: aWins?C.caramel:C.sand }} />
+              <div style={{ width:`${pb}%`, background: !aWins?C.caramel:C.sand }} />
+            </div>
+          </div>
+        );
+      })}
+    </Card>
+  );
+}
+
+// ── Shared UI ────────────────────────────────────────────────────────────────
+function Label({ children, color = C.soft }) {
+  return <div style={{ fontSize:11, letterSpacing:2.5, color, textTransform:"uppercase", marginBottom:8, fontWeight:700, fontFamily:FONT_BODY }}>{children}</div>;
+}
+function SectionTitle({ children }) {
+  return (
+    <h2 style={{ fontSize:24, fontWeight:700, color:C.cocoa, margin:"0 0 18px", display:"flex", alignItems:"center", gap:10, fontFamily:FONT_DISP }}>
+      <Paw size={18} color={C.clay} /> {children}
+    </h2>
+  );
+}
+function Card({ children, accent = C.caramel, style = {} }) {
+  return <div style={{ background:surface, border:`2px solid ${accent}33`, borderRadius:24, padding:24, marginBottom:16, boxShadow:"0 6px 18px rgba(124,89,66,0.07)", ...style }}>{children}</div>;
+}
+function Chips({ items, color }) {
+  return items.map(x => (
+    <div key={x} style={{ fontSize:13, color:C.body, padding:"4px 0", lineHeight:1.5, display:"flex", gap:8, alignItems:"flex-start" }}>
+      <span style={{ marginTop:3, flexShrink:0 }}><Paw size={11} color={color} /></span>{x}
+    </div>
+  ));
+}
+const Fonts = () => (
+  <style>{`@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');`}</style>
+);
+const pageBg = (pos) => ({ minHeight:"100vh", background:`radial-gradient(circle at ${pos}, ${C.cream}, ${C.creamDeep} 62%, #E9DDC6)`, fontFamily:FONT_BODY, color:C.ink, position:"relative" });
+const HomeBtn = ({ onClick, label = "← Home" }) => (
+  <button onClick={onClick} style={{ padding:"9px 16px", borderRadius:100, border:`2px solid ${C.line}`, background:"white", color:C.soft, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP }}>{label}</button>
+);
+
+// ── LANDING ────────────────────────────────────────────────────────────────
+function Landing({ onManual, onQuiz }) {
+  const choice = (title, sub, onClick, accent) => (
+    <button onClick={onClick} style={{ flex:1, minWidth:240, background:surface, border:`2px solid ${accent}40`, borderRadius:26, padding:"26px 24px", cursor:"pointer", textAlign:"left", fontFamily:FONT_BODY, boxShadow:"0 8px 22px rgba(124,89,66,0.08)", transition:"transform 0.15s" }}
+      onMouseEnter={e => e.currentTarget.style.transform="translateY(-3px)"} onMouseLeave={e => e.currentTarget.style.transform="translateY(0)"}>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+        <Paw size={18} color={accent} />
+        <span style={{ fontFamily:FONT_DISP, fontWeight:700, fontSize:19, color:C.cocoa }}>{title}</span>
+      </div>
+      <p style={{ margin:0, color:C.soft, fontSize:14, lineHeight:1.6, fontWeight:500 }}>{sub}</p>
+    </button>
+  );
+  return (
+    <div style={{ ...pageBg("20% 8%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"40px 18px 64px" }}>
+      <Fonts />
+      <PatternBg />
+      <div style={{ ...FRAME, position:"relative", zIndex:1, width:"100%", maxWidth:720, padding:"40px 30px 38px", display:"flex", flexDirection:"column", alignItems:"center" }}>
+        <div style={{ textAlign:"center", marginBottom:34, maxWidth:600 }}>
+          <PawEmblem size={72} />
+          <h1 style={{ fontSize:"clamp(30px,6vw,52px)", fontWeight:800, color:C.cocoa, margin:"12px 0 8px", lineHeight:1.1, fontFamily:FONT_DISP }}>
+            Sleepy's Guide to<br/>Personality Types
+          </h1>
+          <p style={{ color:C.soft, fontSize:16, margin:0, lineHeight:1.7, fontWeight:500 }}>
+            A warm, friendly walk through MBTI and the Enneagram. <span style={{ whiteSpace:"nowrap" }}>🐾</span>
+          </p>
+        </div>
+        <div style={{ display:"flex", gap:16, flexWrap:"wrap", width:"100%" }}>
+          {choice("I know my types", "Enter your MBTI and Enneagram directly and jump straight to your results.", onManual, C.caramel)}
+          {choice("Unsure of your type? Take the test", "Answer some plain-language questions and we'll work out your types for you.", onQuiz, C.clay)}
+        </div>
+        <div style={{ marginTop:26, maxWidth:560, textAlign:"center" }}>
+          <p style={{ color:C.soft, fontSize:13, lineHeight:1.7, fontWeight:500 }}>
+            Prefer a longer, official test? You can also take the{" "}
+            <a href="https://www.16personalities.com/free-personality-test" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>16Personalities (MBTI) test</a>{" "}or the{" "}
+            <a href="https://enneagram-personality.com/" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>Enneagram test</a>, then come back and choose “I know my types.”
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── QUIZ FLOW (with short / long choice) ───────────────────────────────────────
+function QuizFlow({ onHome, onDone }) {
+  const [length, setLength] = useState(null);
+  const [phase, setPhase] = useState("mbti");
+  const [mi, setMi] = useState(0);
+  const [ei, setEi] = useState(0);
+  const [mbtiAns, setMbtiAns] = useState([]);
+  const [ennAns, setEnnAns] = useState([]);
+
+  // length chooser screen
+  if (!length) {
+    const opt = (title, desc, count, L, accent) => (
+      <button onClick={() => { const { mbti, enn } = buildQuiz(L); setMbtiAns(Array(mbti.length).fill(null)); setEnnAns(Array(enn.length).fill(null)); setLength(L); }}
+        style={{ flex:1, minWidth:230, background:surface, border:`2px solid ${accent}40`, borderRadius:24, padding:"24px 22px", cursor:"pointer", textAlign:"left", fontFamily:FONT_BODY, boxShadow:"0 8px 22px rgba(124,89,66,0.08)", transition:"transform 0.15s" }}
+        onMouseEnter={e => e.currentTarget.style.transform="translateY(-3px)"} onMouseLeave={e => e.currentTarget.style.transform="translateY(0)"}>
+        <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:6 }}>
+          <Paw size={17} color={accent} />
+          <span style={{ fontFamily:FONT_DISP, fontWeight:700, fontSize:18, color:C.cocoa }}>{title}</span>
+        </div>
+        <p style={{ margin:"0 0 10px", color:C.soft, fontSize:13.5, lineHeight:1.6, fontWeight:500 }}>{desc}</p>
+        <span style={{ fontSize:12, fontWeight:700, color:accent, fontFamily:FONT_DISP }}>{count}</span>
+      </button>
+    );
+    return (
+      <div style={{ ...pageBg("50% 0%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"28px 18px 64px" }}>
+        <Fonts />
+        <PatternBg />
+        <div style={{ width:"100%", maxWidth:640, position:"relative", zIndex:1 }}>
+          <div style={{ marginBottom:16 }}><HomeBtn onClick={onHome} /></div>
+          <div style={{ ...FRAME, padding:"30px 26px 30px" }}>
+            <div style={{ textAlign:"center", marginBottom:26 }}>
+              <PawEmblem size={60} />
+              <h1 style={{ fontSize:"clamp(24px,5vw,34px)", fontWeight:800, color:C.cocoa, margin:"10px 0 6px", fontFamily:FONT_DISP }}>Take the test</h1>
+              <p style={{ color:C.soft, fontSize:14.5, margin:0, lineHeight:1.7, fontWeight:500 }}>Pick how thorough you'd like to be. Both cover MBTI and the Enneagram.</p>
+            </div>
+            <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+              {opt("Quick test", "A speedy read on your types — perfect for a first guess.", "About 30 questions · ~5 min", "short", C.clay)}
+              {opt("In-depth test", "More questions per trait for a steadier, more confident result.", "About 56 questions · ~10 min", "long", C.caramel)}
+            </div>
+            <p style={{ marginTop:20, fontSize:12.5, color:C.soft, lineHeight:1.7, textAlign:"center", fontWeight:500 }}>
+              Prefer a full official test? Try{" "}
+              <a href="https://www.16personalities.com/free-personality-test" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>16Personalities</a>{" "}and the{" "}
+              <a href="https://enneagram-personality.com/" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>Enneagram test</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { mbti: AM, enn: AE, ePer } = buildQuiz(length);
+  const total = AM.length + AE.length;
+  const done = phase === "mbti" ? mi : AM.length + ei;
+  const progress = Math.round((done / total) * 100);
+
+  const finish = (ennArr) => {
+    const dc = { EI:{E:0,I:0}, SN:{S:0,N:0}, TF:{T:0,F:0}, PJ:{P:0,J:0} };
+    AM.forEach((q,i) => { const v = mbtiAns[i]; if (v) dc[q.dim][v]++; });
+    const mbtiType = `${dc.EI.E>=dc.EI.I?"E":"I"}${dc.SN.S>=dc.SN.N?"S":"N"}${dc.TF.T>=dc.TF.F?"T":"F"}${dc.PJ.J>=dc.PJ.P?"J":"P"}`;
+    const mbtiScores = { EI:{av:dc.EI.E,bv:dc.EI.I}, SN:{av:dc.SN.S,bv:dc.SN.N}, TF:{av:dc.TF.T,bv:dc.TF.F}, PJ:{av:dc.PJ.J,bv:dc.PJ.P} };
+    const sum = {}; for (let n=1;n<=9;n++) sum[n]=0;
+    AE.forEach((q,i) => { sum[q.enn] += (ennArr[i] || 0); });
+    let top = 1; for (let n=2;n<=9;n++) if (sum[n] > sum[top]) top = n;
+    const maxPer = ePer * 3;
+    const ennScores = {}; for (let n=1;n<=9;n++) ennScores[n] = Math.round((sum[n]/maxPer)*100);
+    const { prev, next } = enneagramTypes[top-1].wings;
+    let wing = null; if (sum[prev] || sum[next]) wing = sum[prev] > sum[next] ? prev : next;
+    onDone({ mbtiType, ennNum: top, wing, ennScores, mbtiScores });
+  };
+
+  const pickMbti = (val) => { const n=[...mbtiAns]; n[mi]=val; setMbtiAns(n); if (mi+1 < AM.length) setMi(mi+1); else setPhase("enn"); };
+  const pickEnn = (val) => { const n=[...ennAns]; n[ei]=val; setEnnAns(n); if (ei+1 < AE.length) setEi(ei+1); else finish(n); };
+  const back = () => {
+    if (phase === "mbti") { if (mi>0) setMi(mi-1); else onHome(); }
+    else { if (ei>0) setEi(ei-1); else { setPhase("mbti"); setMi(AM.length-1); } }
+  };
+
+  const q = phase === "mbti" ? AM[mi] : AE[ei];
+  const partLabel = phase === "mbti" ? `Part 1 of 2 · MBTI · Question ${mi+1}/${AM.length}` : `Part 2 of 2 · Enneagram · Question ${ei+1}/${AE.length}`;
+
+  return (
+    <div style={{ ...pageBg("50% 0%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"24px 18px 64px" }}>
+      <Fonts />
+      <PatternBg />
+      <div style={{ width:"100%", maxWidth:600, position:"relative", zIndex:1 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+          <HomeBtn onClick={onHome} />
+          <span style={{ fontSize:12.5, color:C.soft, fontWeight:700, fontFamily:FONT_DISP }}>{progress}% complete</span>
+        </div>
+        <div style={{ ...FRAME, padding:"24px 22px 22px" }}>
+          <div style={{ height:10, background:C.tan, borderRadius:100, overflow:"hidden", marginBottom:22 }}>
+            <div style={{ height:"100%", width:`${progress}%`, background:`linear-gradient(90deg,${C.caramel},${C.cocoa})`, borderRadius:100, transition:"width 0.3s" }} />
+          </div>
+          <div style={{ background:surface, borderRadius:24, padding:"26px 22px", border:`2px solid ${C.caramel}26`, boxShadow:"0 8px 22px rgba(124,89,66,0.07)" }}>
+            <Label color={C.clayDeep}>{partLabel}</Label>
+            <h2 style={{ margin:"4px 0 20px", fontWeight:700, fontSize:21, color:C.cocoa, fontFamily:FONT_DISP, lineHeight:1.35 }}>
+              {phase === "mbti" ? q.q : q.text}
+            </h2>
+            {phase === "mbti" ? (
+              <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                {q.options.map(([label, val]) => {
+                  const sel = mbtiAns[mi] === val;
+                  return (
+                    <button key={val} onClick={() => pickMbti(val)} style={{ padding:"18px 20px", borderRadius:18, cursor:"pointer", border: sel ? `2.5px solid ${C.caramel}` : `2px solid ${C.line}`, background: sel ? `${C.honey}26` : C.cream, textAlign:"left", fontFamily:FONT_BODY, fontSize:15, fontWeight:600, color:C.cocoa, lineHeight:1.5, transition:"all 0.15s" }}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10 }}>
+                {RATING.map(([label, val]) => {
+                  const sel = ennAns[ei] === val;
+                  return (
+                    <button key={val} onClick={() => pickEnn(val)} style={{ padding:"16px 12px", borderRadius:16, cursor:"pointer", border: sel ? `2.5px solid ${C.caramel}` : `2px solid ${C.line}`, background: sel ? `${C.honey}26` : C.cream, fontFamily:FONT_DISP, fontSize:15, fontWeight:700, color: sel ? C.caramelDeep : C.body, transition:"all 0.15s" }}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <div style={{ marginTop:14 }}>
+            <button onClick={back} style={{ padding:"12px 22px", borderRadius:16, border:`2px solid ${C.line}`, background:"white", color:C.soft, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP }}>← Back</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MANUAL ENTRY ────────────────────────────────────────────────────────────
+function Intro({ onHome, onDone }) {
+  const [dims, setDims] = useState({ EI:null, SN:null, TF:null, PJ:null });
+  const [step, setStep] = useState(1);
+  const [ennNum, setEnnNum] = useState(null);
+  const [wing, setWing] = useState(null);
+
+  const mbtiType = dims.EI && dims.SN && dims.TF && dims.PJ ? `${dims.EI}${dims.SN}${dims.TF}${dims.PJ}` : null;
+  const ennData = ennNum ? enneagramTypes[ennNum - 1] : null;
+
+  const dimDefs = [
+    { id:"EI", q:"Where do you get your energy?", opts:[["E","Extrovert","Charged up by people & the wider world"],["I","Introvert","Charged up by quiet & solitude"]] },
+    { id:"SN", q:"How do you take in information?", opts:[["S","Sensor","Facts, details, what's right here"],["N","Intuitive","Patterns, ideas, what could be"]] },
+    { id:"TF", q:"How do you make choices?", opts:[["T","Thinker","Head — logic & fairness"],["F","Feeler","Heart — values & feelings"]] },
+    { id:"PJ", q:"How do you approach life?", opts:[["P","Perceiver","Flexible, open, go-with-the-flow"],["J","Judger","Planned, tidy, likes routine"]] },
+  ];
+  const btnBig = (active) => ({
+    width:"100%", padding:18, borderRadius:20, border:"none",
+    background: active ? `linear-gradient(135deg,${C.caramel},${C.cocoa})` : C.tan,
+    color: active ? "white" : C.soft, fontSize:16, fontWeight:700, cursor: active ? "pointer":"not-allowed",
+    fontFamily:FONT_DISP, boxShadow: active ? `0 6px 18px ${C.caramel}55` : "none", transition:"all 0.2s",
+  });
+
+  return (
+    <div style={{ ...pageBg("20% 8%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"24px 18px 64px" }}>
+      <Fonts />
+      <PatternBg />
+      <div style={{ width:"100%", maxWidth:640, position:"relative", zIndex:1 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+          <HomeBtn onClick={onHome} />
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            {[1,2].map(s => (
+              <div key={s} style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <div style={{ width:30, height:30, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:FONT_DISP, fontWeight:700, fontSize:13,
+                  background: step===s ? `linear-gradient(135deg,${C.caramel},${C.cocoa})` : step>s ? C.clayDeep : "white",
+                  border: step<=s ? "none" : `2px solid ${C.line}`, color: step>=s ? "white" : C.soft }}>{step>s ? "✓" : s}</div>
+                {s<2 && <div style={{ width:20, height:2, background:C.line, borderRadius:2 }} />}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ ...FRAME, padding:"24px 22px 26px" }}>
+        {step === 1 && (
+          <div>
+            <div style={{ background:surface, borderRadius:24, padding:"24px 22px 26px", border:`2px solid ${C.caramel}26`, marginBottom:16, boxShadow:"0 8px 22px rgba(124,89,66,0.07)" }}>
+              <div style={{ textAlign:"center", marginBottom:22 }}>
+                <Label color={C.clayDeep}>Step 1 · MBTI</Label>
+                <h2 style={{ margin:0, fontWeight:700, fontSize:24, color:C.cocoa, fontFamily:FONT_DISP }}>Build your MBTI type</h2>
+                <p style={{ color:C.soft, fontSize:13.5, marginTop:6, lineHeight:1.6, fontWeight:500 }}>Pick one from each pair. Already know your type? Just tap the matching letters!</p>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                {dimDefs.map(d => (
+                  <div key={d.id}>
+                    <div style={{ fontSize:13, color:C.caramelDeep, marginBottom:8, fontWeight:600 }}>{d.q}</div>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+                      {d.opts.map(([v,label,sub]) => {
+                        const sel = dims[d.id] === v;
+                        return (
+                          <button key={v} onClick={() => setDims(p => ({ ...p, [d.id]:v }))} style={{ padding:"14px 14px", borderRadius:18, cursor:"pointer", border: sel ? `2.5px solid ${C.caramel}` : `2px solid ${C.line}`, background: sel ? `${C.honey}26` : C.cream, textAlign:"left", fontFamily:FONT_BODY, transition:"all 0.15s" }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                              <span style={{ fontSize:28, fontWeight:800, color: sel ? C.caramelDeep : C.sand, lineHeight:1, fontFamily:FONT_DISP }}>{v}</span>
+                              <div>
+                                <div style={{ fontSize:14, fontWeight:700, color: sel ? C.cocoa : C.body }}>{label}</div>
+                                <div style={{ fontSize:11.5, color:C.soft, lineHeight:1.35, marginTop:2, fontWeight:500 }}>{sub}</div>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop:22, textAlign:"center", padding:18, background:`${C.clay}26`, borderRadius:20 }}>
+                <Label color={C.clayDeep}>Your type so far</Label>
+                <div style={{ display:"flex", justifyContent:"center", gap:6 }}>
+                  {["EI","SN","TF","PJ"].map(k => (
+                    <div key={k} style={{ width:48, height:54, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:FONT_DISP, fontWeight:800, fontSize:26, transition:"all 0.3s",
+                      background: dims[k] ? `linear-gradient(135deg,${C.caramel},${C.cocoa})` : "white", color: dims[k] ? "white" : C.sand, boxShadow: dims[k] ? `0 4px 10px ${C.caramel}40` : "none" }}>
+                      {dims[k] || "?"}
+                    </div>
+                  ))}
+                </div>
+                {mbtiType && <div style={{ marginTop:10, fontSize:14, color:C.cocoa, fontWeight:700, fontFamily:FONT_DISP }}>{mbtiData[mbtiType].name}</div>}
+              </div>
+            </div>
+            <button onClick={() => setStep(2)} disabled={!mbtiType} style={btnBig(!!mbtiType)}>
+              {mbtiType ? `Continue as ${mbtiType} →` : "Pick all four to keep going"}
+            </button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <div style={{ background:surface, borderRadius:24, padding:"24px 22px 26px", border:`2px solid ${C.caramel}26`, marginBottom:16, boxShadow:"0 8px 22px rgba(124,89,66,0.07)" }}>
+              <div style={{ textAlign:"center", marginBottom:20 }}>
+                <Label color={C.clayDeep}>Step 2 · Enneagram</Label>
+                <h2 style={{ margin:0, fontWeight:700, fontSize:24, color:C.cocoa, fontFamily:FONT_DISP }}>Choose your Enneagram type</h2>
+                <p style={{ color:C.soft, fontSize:13.5, marginTop:6, lineHeight:1.6, fontWeight:500 }}>Pick your core type (1–9), then a wing if you know it.</p>
+              </div>
+              <Label color={C.caramelDeep}>Core type</Label>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:18 }}>
+                {enneagramTypes.map(t => {
+                  const sel = ennNum === t.number;
+                  return (
+                    <button key={t.number} onClick={() => { setEnnNum(t.number); setWing(null); }} style={{ padding:"13px 11px", borderRadius:18, cursor:"pointer", border: sel ? `2.5px solid ${t.col}` : `2px solid ${C.line}`, background: sel ? `${t.col}1c` : C.cream, textAlign:"left", fontFamily:FONT_BODY, transition:"all 0.15s", boxShadow: sel ? `0 4px 12px ${t.col}33` : "none" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+                        <div style={{ width:34, height:34, borderRadius:"50%", background: sel ? t.col : `${t.col}2e`, display:"flex", alignItems:"center", justifyContent:"center", color: sel ? "white" : t.col, fontSize:16, fontWeight:800, flexShrink:0, fontFamily:FONT_DISP }}>{t.number}</div>
+                        <div>
+                          <div style={{ fontSize:12.5, color:C.cocoa, fontWeight:700, lineHeight:1.15 }}>{t.name}</div>
+                          <div style={{ fontSize:10.5, color:C.soft, marginTop:2, fontWeight:500 }}>{t.alt}</div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              {ennData && (
+                <div style={{ padding:16, background:`${C.honey}1f`, borderRadius:20 }}>
+                  <Label color={C.caramelDeep}>Wing (optional)</Label>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
+                    {[{v:ennData.wings.prev,l:`w${ennData.wings.prev}`},{v:null,l:"Not sure"},{v:ennData.wings.next,l:`w${ennData.wings.next}`}].map(o => {
+                      const sel = wing === o.v;
+                      return <button key={String(o.v)} onClick={() => setWing(o.v)} style={{ padding:12, borderRadius:14, cursor:"pointer", border: sel ? `2.5px solid ${C.caramel}` : `2px solid ${C.line}`, background: sel ? `${C.caramel}1f` : "white", color: sel ? C.caramelDeep : C.body, fontSize:14, fontWeight:700, fontFamily:FONT_DISP, transition:"all 0.15s" }}>{o.l}</button>;
+                    })}
+                  </div>
+                  {wing && <div style={{ marginTop:12, fontSize:12.5, color:C.body, lineHeight:1.7, padding:"11px 13px", background:"white", borderRadius:14, borderLeft:`3px solid ${C.caramel}`, fontWeight:500 }}>{ennData.wingDescs[wing]}</div>}
+                </div>
+              )}
+            </div>
+            <div style={{ display:"flex", gap:10 }}>
+              <button onClick={() => setStep(1)} style={{ padding:"18px 22px", borderRadius:20, border:`2px solid ${C.line}`, background:"white", color:C.soft, fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP }}>← Back</button>
+              <button onClick={() => onDone({ mbtiType, ennNum, wing })} disabled={!ennNum} style={{ ...btnBig(!!ennNum), flex:1 }}>
+                {ennNum ? `Let's go! ${mbtiType} + ${ennNum}${wing ? `w${wing}` : ""} →` : "Pick your number first"}
+              </button>
+            </div>
+          </div>
+        )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── RESULT TABS ────────────────────────────────────────────────────────────────
+function JourneyHint({ go }) {
+  const steps = [["mbti","MBTI"],["enneagram","Enneagram"],["tips","Tips"]];
+  return (
+    <Card accent={C.clay} style={{ background:`linear-gradient(135deg,${C.clay}26,${C.honey}1c)` }}>
+      <Label color={C.clayDeep}>👇 Keep exploring</Label>
+      <p style={{ margin:"0 0 12px", color:C.body, fontSize:14, lineHeight:1.7, fontWeight:500 }}>
+        There's lots more below. Work through each section in order — tap a tab above, or use the buttons at the bottom of each page.
+      </p>
+      <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+        {steps.map(([id,label],i) => (
+          <button key={id} onClick={() => go(id)} style={{ display:"flex", alignItems:"center", gap:7, padding:"8px 14px", borderRadius:100, border:`2px solid ${C.caramel}40`, background:"white", cursor:"pointer", fontFamily:FONT_DISP, fontWeight:700, fontSize:13, color:C.cocoa }}>
+            <span style={{ width:20, height:20, borderRadius:"50%", background:C.caramel, color:"#fff", display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:11 }}>{i+1}</span>
+            {label}
+          </button>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function ProfileTab({ mData, eData, mbtiType, ennNum, wing, go }) {
+  return (
+    <div>
+      <SectionTitle>Your Overview</SectionTitle>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:16 }}>
+        <Card accent={C.caramel} style={{ marginBottom:0 }}>
+          <Label color={C.caramelDeep}>MBTI · {mbtiType}</Label>
+          <h3 style={{ margin:"0 0 10px", fontWeight:700, fontSize:20, color:C.cocoa, fontFamily:FONT_DISP }}>{mData.name}</h3>
+          <p style={{ color:C.body, fontSize:13, lineHeight:1.75, margin:0, fontWeight:500 }}>{mData.description}</p>
+        </Card>
+        <Card accent={eData.col} style={{ marginBottom:0 }}>
+          <Label color={eData.col}>Enneagram · {ennNum}{wing ? `w${wing}` : ""}</Label>
+          <h3 style={{ margin:"0 0 10px", fontWeight:700, fontSize:20, color:C.cocoa, fontFamily:FONT_DISP }}>{eData.name}</h3>
+          <p style={{ color:C.body, fontSize:13, lineHeight:1.75, margin:0, fontWeight:500 }}>{eData.motivation}</p>
+        </Card>
+      </div>
+      <Card accent={C.clay}>
+        <h3 style={{ margin:"0 0 16px", fontWeight:700, fontSize:18, color:C.cocoa, fontFamily:FONT_DISP }}>Two ways to know yourself</h3>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+          <div style={{ padding:15, background:`${C.caramel}16`, borderRadius:16 }}>
+            <Label color={C.caramelDeep}>MBTI = the HOW</Label>
+            <p style={{ color:C.body, fontSize:13, lineHeight:1.75, margin:0, fontWeight:500 }}>Your style — how you gather info, make choices, and move through the world. Your inner operating system.</p>
+          </div>
+          <div style={{ padding:15, background:`${eData.col}16`, borderRadius:16 }}>
+            <Label color={eData.col}>Enneagram = the WHY</Label>
+            <p style={{ color:C.body, fontSize:13, lineHeight:1.75, margin:0, fontWeight:500 }}>Your heart — your deepest wish, your biggest worry, and the feeling tucked under everything you do.</p>
+          </div>
+        </div>
+      </Card>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:16 }}>
+        <div style={{ background:surface, border:`2px solid ${C.clay}55`, borderRadius:22, padding:20, boxShadow:"0 6px 18px rgba(124,89,66,0.06)" }}>
+          <Label color={C.clayDeep}>✨ Strengths</Label>
+          <Chips items={[...mData.strengths.slice(0,3), ...eData.strengths.slice(0,2)]} color={C.clayDeep} />
+        </div>
+        <div style={{ background:surface, border:`2px solid ${C.honey}66`, borderRadius:22, padding:20, boxShadow:"0 6px 18px rgba(124,89,66,0.06)" }}>
+          <Label color={C.honeyDeep}>🌱 Growth areas</Label>
+          <Chips items={[...mData.challenges.slice(0,3), ...eData.challenges.slice(0,2)]} color={C.honeyDeep} />
+        </div>
+      </div>
+      <JourneyHint go={go} />
+    </div>
+  );
+}
+
+function MBTIDetailTab({ mData, mbtiType, mbtiScores }) {
+  const dims = [
+    ["EI", mbtiType[0]==="I"?"Introvert":"Extrovert", mbtiType[0]==="I"?"You recharge through quiet solitude.":"You recharge through people & the world."],
+    ["SN", mbtiType[1]==="N"?"Intuitive":"Sensor", mbtiType[1]==="N"?"You focus on patterns & what could be.":"You focus on facts & present reality."],
+    ["TF", mbtiType[2]==="F"?"Feeler":"Thinker", mbtiType[2]==="F"?"You decide with heart & values.":"You decide with head & logic."],
+    ["PJ", mbtiType[3]==="J"?"Judger":"Perceiver", mbtiType[3]==="J"?"You like plans, tidiness & closure.":"You like flexibility & spontaneity."],
+  ];
+  return (
+    <div>
+      <SectionTitle>{mbtiType} — {mData.name}</SectionTitle>
+      {mbtiScores && <MbtiBars scores={mbtiScores} />}
+      <p style={{ color:C.body, lineHeight:1.85, marginBottom:22, fontSize:15, fontWeight:500 }}>{mData.description}</p>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:22 }}>
+        {dims.map(([id,name,desc],i) => (
+          <div key={id} style={{ background:surface, border:`2px solid ${C.caramel}2e`, borderRadius:20, padding:16, textAlign:"center", boxShadow:"0 5px 14px rgba(124,89,66,0.05)" }}>
+            <div style={{ fontSize:36, fontWeight:800, color:C.caramelDeep, lineHeight:1, fontFamily:FONT_DISP }}>{mbtiType[i]}</div>
+            <div style={{ fontSize:13, color:C.cocoa, margin:"6px 0 6px", fontWeight:700 }}>{name}</div>
+            <div style={{ fontSize:11.5, color:C.soft, lineHeight:1.5, fontWeight:500 }}>{desc}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:24 }}>
+        <Card accent={C.clay} style={{ marginBottom:0 }}>
+          <Label color={C.clayDeep}>✨ Strengths</Label>
+          <Chips items={mData.strengths} color={C.clayDeep} />
+        </Card>
+        <Card accent={C.honey} style={{ marginBottom:0 }}>
+          <Label color={C.honeyDeep}>🌱 Growth areas</Label>
+          <Chips items={mData.challenges} color={C.honeyDeep} />
+        </Card>
+      </div>
+      <SectionTitle>Cognitive Functions</SectionTitle>
+      <p style={{ color:C.body, fontSize:14, lineHeight:1.8, marginBottom:16, fontWeight:500 }}>Behind your four letters are eight mental processes, ranked by how naturally they come to you. Here are your top four:</p>
+      {mData.functions.map(([fn,full,role,desc],i) => (
+        <div key={fn} style={{ display:"flex", gap:15, padding:"14px 0", borderBottom:`1.5px solid ${C.line}`, alignItems:"flex-start" }}>
+          <div style={{ width:40, height:40, borderRadius:"50%", background:`linear-gradient(135deg,${C.caramel},${C.cocoa})`, opacity:1 - i*0.16, display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:13, fontWeight:800, flexShrink:0, fontFamily:FONT_DISP }}>{fn}</div>
+          <div>
+            <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:3, flexWrap:"wrap" }}>
+              <span style={{ fontSize:14.5, color:C.cocoa, fontWeight:700 }}>{full}</span>
+              <span style={{ fontSize:10, color:C.soft, letterSpacing:1, fontWeight:700 }}>· {role.toUpperCase()}</span>
+            </div>
+            <div style={{ fontSize:13, color:C.body, lineHeight:1.65, fontWeight:500 }}>{desc}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EnneagramDetailTab({ eData, ennNum, wing, ennScores }) {
+  const ci = centerInfo[eData.center];
+  return (
+    <div>
+      <SectionTitle>Type {ennNum}{wing ? `w${wing}` : ""} — {eData.name}</SectionTitle>
+      {ennScores && <EnnBreakdown scores={ennScores} selected={ennNum} />}
+      <div style={{ background:surface, border:`2.5px solid ${eData.col}4d`, borderRadius:26, padding:26, marginBottom:20, boxShadow:"0 8px 22px rgba(124,89,66,0.08)" }}>
+        <div style={{ display:"flex", gap:18, alignItems:"flex-start", marginBottom:20, flexWrap:"wrap" }}>
+          <div style={{ width:68, height:68, borderRadius:"50%", background:`linear-gradient(135deg,${eData.col},${eData.col}aa)`, display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:32, fontWeight:800, flexShrink:0, boxShadow:`0 5px 16px ${eData.col}44`, fontFamily:FONT_DISP }}>{ennNum}</div>
+          <div>
+            <Label color={eData.col}>Type {ennNum} · {eData.center === "head" ? "mind" : eData.center} center · "{eData.alt}"</Label>
+            <h3 style={{ margin:"2px 0 8px", fontSize:23, fontWeight:700, color:C.cocoa, fontFamily:FONT_DISP }}>{eData.name}</h3>
+            <p style={{ color:C.body, fontSize:14, lineHeight:1.7, margin:0, fontWeight:500 }}>{eData.motivation}</p>
+          </div>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:14 }}>
+          <div style={{ padding:15, background:`${eData.col}14`, borderRadius:16 }}>
+            <Label color={eData.col}>Core Fear</Label>
+            <div style={{ fontSize:13, color:C.body, lineHeight:1.6, fontWeight:500 }}>{eData.fear}</div>
+          </div>
+          <div style={{ padding:15, background:`${eData.col}14`, borderRadius:16 }}>
+            <Label color={eData.col}>Core Desire</Label>
+            <div style={{ fontSize:13, color:C.body, lineHeight:1.6, fontWeight:500 }}>{eData.desire}</div>
+          </div>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+          <div style={{ padding:15, background:`${C.clay}24`, borderRadius:16 }}>
+            <Label color={C.clayDeep}>✨ Strengths</Label>
+            <Chips items={eData.strengths} color={C.clayDeep} />
+          </div>
+          <div style={{ padding:15, background:`${C.honey}24`, borderRadius:16 }}>
+            <Label color={C.honeyDeep}>🌱 Challenges</Label>
+            <Chips items={eData.challenges} color={C.honeyDeep} />
+          </div>
+        </div>
+      </div>
+
+      <WingExplainer ennNum={ennNum} wing={wing} />
+
+      <Card accent={ci.col}>
+        <h3 style={{ margin:"0 0 4px", fontWeight:700, fontSize:18, color:C.cocoa, fontFamily:FONT_DISP }}>The three centers</h3>
+        <p style={{ color:C.soft, fontSize:13, lineHeight:1.7, margin:"0 0 18px", fontWeight:500 }}>Every type belongs to one of three centers — Body, Heart, or Mind — each driven by a core emotion. Yours is highlighted.</p>
+        <CentersTriad selected={eData.center} />
+      </Card>
+
+      <EnneagramDynamics ennNum={ennNum} />
+    </div>
+  );
+}
+
+function TipsTab({ mData, eData, mbtiType, ennNum }) {
+  const mbtiTips = [...mbtiType.split("").map(l => DIM_TIPS[l])];
+  const inf = mData.functions[3];
+  const infTip = `Your least-developed strength is ${inf[1]} (${inf[0]}). ${inf[3]} Growing it in small, low-stakes ways rounds you out over time.`;
+  return (
+    <div>
+      <SectionTitle>Tips & Growth</SectionTitle>
+      <p style={{ color:C.body, lineHeight:1.85, marginBottom:20, fontSize:15, fontWeight:500 }}>
+        A few gentle, practical ways to grow — drawn from both your types — plus the challenges you're most likely to face and how to handle them.
+      </p>
+
+      <Card accent={eData.col}>
+        <Label color={eData.col}>Growth tips · Type {ennNum} ({eData.name.replace("The ","")})</Label>
+        <Chips items={eData.growth} color={eData.col} />
+      </Card>
+
+      <Card accent={C.caramel}>
+        <Label color={C.caramelDeep}>Tips for your {mbtiType}</Label>
+        <Chips items={[...mbtiTips, infTip]} color={C.caramel} />
+      </Card>
+
+      <SectionTitle>Challenges & how to handle them</SectionTitle>
+      {eData.pitfalls.map((p, i) => (
+        <div key={i} style={{ background:surface, border:`2px solid ${C.honey}55`, borderRadius:20, padding:"18px 20px", marginBottom:12, boxShadow:"0 4px 12px rgba(124,89,66,0.05)" }}>
+          <div style={{ display:"flex", gap:9, alignItems:"flex-start", marginBottom:8 }}>
+            <span style={{ marginTop:3 }}><Paw size={14} color={C.honeyDeep} /></span>
+            <span style={{ fontFamily:FONT_DISP, fontWeight:700, fontSize:15.5, color:C.cocoa }}>{p.c}</span>
+          </div>
+          <div style={{ paddingLeft:23, display:"flex", gap:8 }}>
+            <span style={{ fontSize:11, fontWeight:800, color:C.clayDeep, letterSpacing:1, textTransform:"uppercase", flexShrink:0, marginTop:2 }}>Try&nbsp;this</span>
+            <p style={{ margin:0, color:C.body, fontSize:13.5, lineHeight:1.75, fontWeight:500 }}>{p.f}</p>
+          </div>
+        </div>
+      ))}
+
+      <div style={{ marginTop:24, textAlign:"center", padding:"30px 24px", background:`linear-gradient(135deg,${C.clay}2e,${C.honey}24)`, borderRadius:26, border:`2px solid ${C.clay}44` }}>
+        <PawEmblem size={50} />
+        <div style={{ marginTop:12 }}><Label color={C.clayDeep}>A note from Sleepy</Label></div>
+        <p style={{ color:C.cocoa, fontSize:15, lineHeight:1.9, fontStyle:"italic", maxWidth:520, margin:"0 auto", fontWeight:500 }}>
+          "These types are friendly guides, not labels to box you in. Go gently — growth is a slow, kind process. You're always more than four letters and a number."
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── RESULTS ─────────────────────────────────────────────────────────────────
+function Results({ mbtiType, ennNum, wing, ennScores, mbtiScores, onReset }) {
+  const [tab, setTab] = useState("profile");
+  const mData = mbtiData[mbtiType];
+  const eData = enneagramTypes[ennNum - 1];
+  const tabs = [["profile","Profile"],["mbti","MBTI"],["enneagram","Enneagram"],["tips","Tips"]];
+  const order = tabs.map(t => t[0]);
+  const labelOf = (id) => tabs.find(t => t[0] === id)[1];
+  const idx = order.indexOf(tab);
+  const go = (id) => { setTab(id); if (typeof window !== "undefined") window.scrollTo({ top:0, behavior:"smooth" }); };
+
+  return (
+    <div style={{ ...pageBg("80% 0%"), padding:"24px 16px 56px" }}>
+      <Fonts />
+      <PatternBg />
+      <div style={{ ...FRAME, position:"relative", zIndex:1, maxWidth:860, margin:"0 auto", padding:"8px 6px 20px", overflow:"hidden" }}>
+      <header style={{ textAlign:"center", padding:"24px 24px 18px", position:"relative", zIndex:1 }}>
+        <div style={{ position:"absolute", top:18, left:12 }}><HomeBtn onClick={onReset} label="← Start over" /></div>
+        <PawEmblem size={56} />
+        <h1 style={{ fontSize:"clamp(22px,4vw,38px)", fontWeight:800, margin:"10px 0 6px", color:C.cocoa, fontFamily:FONT_DISP }}>{mData.name} · {eData.name}</h1>
+        <p style={{ color:C.soft, fontSize:14, margin:"0 0 16px", fontWeight:600 }}>{mData.tagline}</p>
+        <div style={{ display:"flex", justifyContent:"center", gap:10, flexWrap:"wrap" }}>
+          <span style={{ background:`linear-gradient(135deg,${C.caramel},${C.cocoa})`, color:"white", padding:"6px 18px", borderRadius:100, fontSize:13, fontWeight:700, fontFamily:FONT_DISP }}>{mbtiType}</span>
+          <span style={{ background:`linear-gradient(135deg,${eData.col},${eData.col}cc)`, color:"white", padding:"6px 18px", borderRadius:100, fontSize:13, fontWeight:700, fontFamily:FONT_DISP }}>{wing ? `${ennNum}w${wing}` : `Type ${ennNum}`}</span>
+        </div>
+      </header>
+      <nav style={{ display:"flex", justifyContent:"center", gap:7, padding:"6px 20px 14px", flexWrap:"wrap", position:"relative", zIndex:1 }}>
+        {tabs.map(([id,label],i) => (
+          <button key={id} onClick={() => go(id)} style={{ padding:"9px 18px", borderRadius:100, border: tab===id ? "none" : `2px solid ${C.line}`, background: tab===id ? `linear-gradient(135deg,${C.caramel},${C.cocoa})` : "white", color: tab===id ? "white" : C.soft, cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:FONT_DISP, transition:"all 0.2s", boxShadow: tab===id ? `0 4px 12px ${C.caramel}40` : "none", display:"flex", alignItems:"center", gap:7 }}>
+            <span style={{ width:18, height:18, borderRadius:"50%", background: tab===id ? "rgba(255,255,255,0.25)" : C.tan, color: tab===id ? "#fff" : C.soft, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:10.5 }}>{i+1}</span>
+            {label}
+          </button>
+        ))}
+      </nav>
+      <main style={{ maxWidth:760, margin:"0 auto", padding:"14px 18px 24px", position:"relative", zIndex:1 }}>
+        {tab==="profile"   && <ProfileTab mData={mData} eData={eData} mbtiType={mbtiType} ennNum={ennNum} wing={wing} go={go} />}
+        {tab==="mbti"      && <MBTIDetailTab mData={mData} mbtiType={mbtiType} mbtiScores={mbtiScores} />}
+        {tab==="enneagram" && <EnneagramDetailTab eData={eData} ennNum={ennNum} wing={wing} ennScores={ennScores} />}
+        {tab==="tips"      && <TipsTab mData={mData} eData={eData} mbtiType={mbtiType} ennNum={ennNum} />}
+
+        <div style={{ display:"flex", justifyContent:"space-between", gap:12, marginTop:26 }}>
+          {idx > 0
+            ? <button onClick={() => go(order[idx-1])} style={{ padding:"13px 22px", borderRadius:18, border:`2px solid ${C.line}`, background:"white", color:C.soft, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP }}>← {labelOf(order[idx-1])}</button>
+            : <span />}
+          {idx < order.length - 1
+            ? <button onClick={() => go(order[idx+1])} style={{ padding:"13px 26px", borderRadius:18, border:"none", background:`linear-gradient(135deg,${C.caramel},${C.cocoa})`, color:"white", fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP, boxShadow:`0 6px 16px ${C.caramel}55` }}>Next: {labelOf(order[idx+1])} →</button>
+            : <button onClick={onReset} style={{ padding:"13px 26px", borderRadius:18, border:`2px solid ${C.caramel}`, background:"white", color:C.caramelDeep, fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP }}>↺ Start over</button>}
+        </div>
+      </main>
+      </div>
+    </div>
+  );
+}
+
+// ── ROOT ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [mode, setMode] = useState(null); // null | 'manual' | 'quiz'
+  const [result, setResult] = useState(null);
+
+  if (result) return <Results {...result} onReset={() => { setResult(null); setMode(null); }} />;
+  if (mode === "manual") return <Intro onHome={() => setMode(null)} onDone={setResult} />;
+  if (mode === "quiz") return <QuizFlow onHome={() => setMode(null)} onDone={setResult} />;
+  return <Landing onManual={() => setMode("manual")} onQuiz={() => setMode("quiz")} />;
+}
+
+
+const _root = ReactDOM.createRoot(document.getElementById("root"));
+_root.render(<App />);
+const _l = document.getElementById("loading");
+if (_l) _l.remove();
+</script>
+</body>
+</html>

@@ -366,11 +366,9 @@ const TILE = `<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' v
   + `</g></svg>`;
 const BG_URL = `url("data:image/svg+xml,${encodeURIComponent(TILE)}")`;
 const PatternBg = () => (
-  <>
-    <div style={{ position:"fixed", inset:0, backgroundImage:BG_URL, backgroundSize:"176px 176px", opacity:0.55, pointerEvents:"none", zIndex:0 }} />
-    <div style={{ position:"fixed", top:0, bottom:0, left:"50%", transform:"translateX(-50%)", width:"min(100%, 900px)", background:C.cream, boxShadow:"0 0 55px 6px rgba(124,89,66,0.16)", pointerEvents:"none", zIndex:0 }} />
-  </>
+  <div style={{ position:"fixed", inset:0, backgroundImage:BG_URL, backgroundSize:"176px 176px", opacity:0.55, pointerEvents:"none", zIndex:0 }} />
 );
+const FRAME = { background:C.cream, borderRadius:34, border:`1.5px solid ${C.tan}`, boxShadow:"0 14px 46px rgba(124,89,66,0.18)" };
 
 function Paw({ size = 13, color = C.caramel, style = {} }) {
   return (
@@ -672,28 +670,30 @@ function Landing({ onManual, onQuiz }) {
     </button>
   );
   return (
-    <div style={{ ...pageBg("20% 8%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"48px 18px 80px" }}>
+    <div style={{ ...pageBg("20% 8%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"40px 18px 64px" }}>
       <Fonts />
       <PatternBg />
-      <div style={{ textAlign:"center", marginBottom:34, maxWidth:600, position:"relative", zIndex:1 }}>
-        <PawEmblem size={72} />
-        <h1 style={{ fontSize:"clamp(30px,6vw,52px)", fontWeight:800, color:C.cocoa, margin:"12px 0 8px", lineHeight:1.1, fontFamily:FONT_DISP }}>
-          Sleepy's Guide to<br/>Personality Types
-        </h1>
-        <p style={{ color:C.soft, fontSize:16, margin:0, lineHeight:1.7, fontWeight:500 }}>
-          A warm, friendly walk through MBTI and the Enneagram. <span style={{ whiteSpace:"nowrap" }}>🐾</span>
-        </p>
-      </div>
-      <div style={{ display:"flex", gap:16, flexWrap:"wrap", maxWidth:680, width:"100%", position:"relative", zIndex:1 }}>
-        {choice("I know my types", "Enter your MBTI and Enneagram directly and jump straight to your results.", onManual, C.caramel)}
-        {choice("Unsure of your type? Take the test", "Answer some plain-language questions and we'll work out your types for you.", onQuiz, C.clay)}
-      </div>
-      <div style={{ marginTop:26, maxWidth:560, textAlign:"center", position:"relative", zIndex:1 }}>
-        <p style={{ color:C.soft, fontSize:13, lineHeight:1.7, fontWeight:500 }}>
-          Prefer a longer, official test? You can also take the{" "}
-          <a href="https://www.16personalities.com/free-personality-test" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>16Personalities (MBTI) test</a>{" "}or the{" "}
-          <a href="https://enneagram-personality.com/" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>Enneagram test</a>, then come back and choose “I know my types.”
-        </p>
+      <div style={{ ...FRAME, position:"relative", zIndex:1, width:"100%", maxWidth:720, padding:"40px 30px 38px", display:"flex", flexDirection:"column", alignItems:"center" }}>
+        <div style={{ textAlign:"center", marginBottom:34, maxWidth:600 }}>
+          <PawEmblem size={72} />
+          <h1 style={{ fontSize:"clamp(30px,6vw,52px)", fontWeight:800, color:C.cocoa, margin:"12px 0 8px", lineHeight:1.1, fontFamily:FONT_DISP }}>
+            Sleepy's Guide to<br/>Personality Types
+          </h1>
+          <p style={{ color:C.soft, fontSize:16, margin:0, lineHeight:1.7, fontWeight:500 }}>
+            A warm, friendly walk through MBTI and the Enneagram. <span style={{ whiteSpace:"nowrap" }}>🐾</span>
+          </p>
+        </div>
+        <div style={{ display:"flex", gap:16, flexWrap:"wrap", width:"100%" }}>
+          {choice("I know my types", "Enter your MBTI and Enneagram directly and jump straight to your results.", onManual, C.caramel)}
+          {choice("Unsure of your type? Take the test", "Answer some plain-language questions and we'll work out your types for you.", onQuiz, C.clay)}
+        </div>
+        <div style={{ marginTop:26, maxWidth:560, textAlign:"center" }}>
+          <p style={{ color:C.soft, fontSize:13, lineHeight:1.7, fontWeight:500 }}>
+            Prefer a longer, official test? You can also take the{" "}
+            <a href="https://www.16personalities.com/free-personality-test" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>16Personalities (MBTI) test</a>{" "}or the{" "}
+            <a href="https://enneagram-personality.com/" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>Enneagram test</a>, then come back and choose “I know my types.”
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -723,25 +723,27 @@ function QuizFlow({ onHome, onDone }) {
       </button>
     );
     return (
-      <div style={{ ...pageBg("50% 0%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"36px 18px 80px" }}>
+      <div style={{ ...pageBg("50% 0%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"28px 18px 64px" }}>
         <Fonts />
         <PatternBg />
         <div style={{ width:"100%", maxWidth:640, position:"relative", zIndex:1 }}>
-          <div style={{ marginBottom:18 }}><HomeBtn onClick={onHome} /></div>
-          <div style={{ textAlign:"center", marginBottom:26 }}>
-            <PawEmblem size={60} />
-            <h1 style={{ fontSize:"clamp(24px,5vw,34px)", fontWeight:800, color:C.cocoa, margin:"10px 0 6px", fontFamily:FONT_DISP }}>Take the test</h1>
-            <p style={{ color:C.soft, fontSize:14.5, margin:0, lineHeight:1.7, fontWeight:500 }}>Pick how thorough you'd like to be. Both cover MBTI and the Enneagram.</p>
+          <div style={{ marginBottom:16 }}><HomeBtn onClick={onHome} /></div>
+          <div style={{ ...FRAME, padding:"30px 26px 30px" }}>
+            <div style={{ textAlign:"center", marginBottom:26 }}>
+              <PawEmblem size={60} />
+              <h1 style={{ fontSize:"clamp(24px,5vw,34px)", fontWeight:800, color:C.cocoa, margin:"10px 0 6px", fontFamily:FONT_DISP }}>Take the test</h1>
+              <p style={{ color:C.soft, fontSize:14.5, margin:0, lineHeight:1.7, fontWeight:500 }}>Pick how thorough you'd like to be. Both cover MBTI and the Enneagram.</p>
+            </div>
+            <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+              {opt("Quick test", "A speedy read on your types — perfect for a first guess.", "About 30 questions · ~5 min", "short", C.clay)}
+              {opt("In-depth test", "More questions per trait for a steadier, more confident result.", "About 56 questions · ~10 min", "long", C.caramel)}
+            </div>
+            <p style={{ marginTop:20, fontSize:12.5, color:C.soft, lineHeight:1.7, textAlign:"center", fontWeight:500 }}>
+              Prefer a full official test? Try{" "}
+              <a href="https://www.16personalities.com/free-personality-test" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>16Personalities</a>{" "}and the{" "}
+              <a href="https://enneagram-personality.com/" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>Enneagram test</a>.
+            </p>
           </div>
-          <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
-            {opt("Quick test", "A speedy read on your types — perfect for a first guess.", "About 30 questions · ~5 min", "short", C.clay)}
-            {opt("In-depth test", "More questions per trait for a steadier, more confident result.", "About 56 questions · ~10 min", "long", C.caramel)}
-          </div>
-          <p style={{ marginTop:20, fontSize:12.5, color:C.soft, lineHeight:1.7, textAlign:"center", fontWeight:500 }}>
-            Prefer a full official test? Try{" "}
-            <a href="https://www.16personalities.com/free-personality-test" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>16Personalities</a>{" "}and the{" "}
-            <a href="https://enneagram-personality.com/" target="_blank" rel="noopener noreferrer" style={{ color:C.caramelDeep, fontWeight:700 }}>Enneagram test</a>.
-          </p>
         </div>
       </div>
     );
@@ -778,7 +780,7 @@ function QuizFlow({ onHome, onDone }) {
   const partLabel = phase === "mbti" ? `Part 1 of 2 · MBTI · Question ${mi+1}/${AM.length}` : `Part 2 of 2 · Enneagram · Question ${ei+1}/${AE.length}`;
 
   return (
-    <div style={{ ...pageBg("50% 0%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"24px 18px 80px" }}>
+    <div style={{ ...pageBg("50% 0%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"24px 18px 64px" }}>
       <Fonts />
       <PatternBg />
       <div style={{ width:"100%", maxWidth:600, position:"relative", zIndex:1 }}>
@@ -786,40 +788,42 @@ function QuizFlow({ onHome, onDone }) {
           <HomeBtn onClick={onHome} />
           <span style={{ fontSize:12.5, color:C.soft, fontWeight:700, fontFamily:FONT_DISP }}>{progress}% complete</span>
         </div>
-        <div style={{ height:10, background:C.tan, borderRadius:100, overflow:"hidden", marginBottom:24 }}>
-          <div style={{ height:"100%", width:`${progress}%`, background:`linear-gradient(90deg,${C.caramel},${C.cocoa})`, borderRadius:100, transition:"width 0.3s" }} />
-        </div>
-        <div style={{ background:surface, borderRadius:28, padding:"28px 24px", border:`2px solid ${C.caramel}26`, boxShadow:"0 10px 28px rgba(124,89,66,0.09)" }}>
-          <Label color={C.clayDeep}>{partLabel}</Label>
-          <h2 style={{ margin:"4px 0 20px", fontWeight:700, fontSize:21, color:C.cocoa, fontFamily:FONT_DISP, lineHeight:1.35 }}>
-            {phase === "mbti" ? q.q : q.text}
-          </h2>
-          {phase === "mbti" ? (
-            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-              {q.options.map(([label, val]) => {
-                const sel = mbtiAns[mi] === val;
-                return (
-                  <button key={val} onClick={() => pickMbti(val)} style={{ padding:"18px 20px", borderRadius:18, cursor:"pointer", border: sel ? `2.5px solid ${C.caramel}` : `2px solid ${C.line}`, background: sel ? `${C.honey}26` : C.cream, textAlign:"left", fontFamily:FONT_BODY, fontSize:15, fontWeight:600, color:C.cocoa, lineHeight:1.5, transition:"all 0.15s" }}>
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10 }}>
-              {RATING.map(([label, val]) => {
-                const sel = ennAns[ei] === val;
-                return (
-                  <button key={val} onClick={() => pickEnn(val)} style={{ padding:"16px 12px", borderRadius:16, cursor:"pointer", border: sel ? `2.5px solid ${C.caramel}` : `2px solid ${C.line}`, background: sel ? `${C.honey}26` : C.cream, fontFamily:FONT_DISP, fontSize:15, fontWeight:700, color: sel ? C.caramelDeep : C.body, transition:"all 0.15s" }}>
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        <div style={{ marginTop:14 }}>
-          <button onClick={back} style={{ padding:"12px 22px", borderRadius:16, border:`2px solid ${C.line}`, background:"white", color:C.soft, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP }}>← Back</button>
+        <div style={{ ...FRAME, padding:"24px 22px 22px" }}>
+          <div style={{ height:10, background:C.tan, borderRadius:100, overflow:"hidden", marginBottom:22 }}>
+            <div style={{ height:"100%", width:`${progress}%`, background:`linear-gradient(90deg,${C.caramel},${C.cocoa})`, borderRadius:100, transition:"width 0.3s" }} />
+          </div>
+          <div style={{ background:surface, borderRadius:24, padding:"26px 22px", border:`2px solid ${C.caramel}26`, boxShadow:"0 8px 22px rgba(124,89,66,0.07)" }}>
+            <Label color={C.clayDeep}>{partLabel}</Label>
+            <h2 style={{ margin:"4px 0 20px", fontWeight:700, fontSize:21, color:C.cocoa, fontFamily:FONT_DISP, lineHeight:1.35 }}>
+              {phase === "mbti" ? q.q : q.text}
+            </h2>
+            {phase === "mbti" ? (
+              <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                {q.options.map(([label, val]) => {
+                  const sel = mbtiAns[mi] === val;
+                  return (
+                    <button key={val} onClick={() => pickMbti(val)} style={{ padding:"18px 20px", borderRadius:18, cursor:"pointer", border: sel ? `2.5px solid ${C.caramel}` : `2px solid ${C.line}`, background: sel ? `${C.honey}26` : C.cream, textAlign:"left", fontFamily:FONT_BODY, fontSize:15, fontWeight:600, color:C.cocoa, lineHeight:1.5, transition:"all 0.15s" }}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10 }}>
+                {RATING.map(([label, val]) => {
+                  const sel = ennAns[ei] === val;
+                  return (
+                    <button key={val} onClick={() => pickEnn(val)} style={{ padding:"16px 12px", borderRadius:16, cursor:"pointer", border: sel ? `2.5px solid ${C.caramel}` : `2px solid ${C.line}`, background: sel ? `${C.honey}26` : C.cream, fontFamily:FONT_DISP, fontSize:15, fontWeight:700, color: sel ? C.caramelDeep : C.body, transition:"all 0.15s" }}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          <div style={{ marginTop:14 }}>
+            <button onClick={back} style={{ padding:"12px 22px", borderRadius:16, border:`2px solid ${C.line}`, background:"white", color:C.soft, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP }}>← Back</button>
+          </div>
         </div>
       </div>
     </div>
@@ -850,11 +854,11 @@ function Intro({ onHome, onDone }) {
   });
 
   return (
-    <div style={{ ...pageBg("20% 8%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"24px 18px 80px" }}>
+    <div style={{ ...pageBg("20% 8%"), display:"flex", flexDirection:"column", alignItems:"center", padding:"24px 18px 64px" }}>
       <Fonts />
       <PatternBg />
       <div style={{ width:"100%", maxWidth:640, position:"relative", zIndex:1 }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
           <HomeBtn onClick={onHome} />
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             {[1,2].map(s => (
@@ -868,9 +872,10 @@ function Intro({ onHome, onDone }) {
           </div>
         </div>
 
+        <div style={{ ...FRAME, padding:"24px 22px 26px" }}>
         {step === 1 && (
           <div>
-            <div style={{ background:surface, borderRadius:28, padding:"26px 24px 28px", border:`2px solid ${C.caramel}26`, marginBottom:16, boxShadow:"0 10px 28px rgba(124,89,66,0.09)" }}>
+            <div style={{ background:surface, borderRadius:24, padding:"24px 22px 26px", border:`2px solid ${C.caramel}26`, marginBottom:16, boxShadow:"0 8px 22px rgba(124,89,66,0.07)" }}>
               <div style={{ textAlign:"center", marginBottom:22 }}>
                 <Label color={C.clayDeep}>Step 1 · MBTI</Label>
                 <h2 style={{ margin:0, fontWeight:700, fontSize:24, color:C.cocoa, fontFamily:FONT_DISP }}>Build your MBTI type</h2>
@@ -920,7 +925,7 @@ function Intro({ onHome, onDone }) {
 
         {step === 2 && (
           <div>
-            <div style={{ background:surface, borderRadius:28, padding:"26px 24px 28px", border:`2px solid ${C.caramel}26`, marginBottom:16, boxShadow:"0 10px 28px rgba(124,89,66,0.09)" }}>
+            <div style={{ background:surface, borderRadius:24, padding:"24px 22px 26px", border:`2px solid ${C.caramel}26`, marginBottom:16, boxShadow:"0 8px 22px rgba(124,89,66,0.07)" }}>
               <div style={{ textAlign:"center", marginBottom:20 }}>
                 <Label color={C.clayDeep}>Step 2 · Enneagram</Label>
                 <h2 style={{ margin:0, fontWeight:700, fontSize:24, color:C.cocoa, fontFamily:FONT_DISP }}>Choose your Enneagram type</h2>
@@ -964,6 +969,7 @@ function Intro({ onHome, onDone }) {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
@@ -1191,11 +1197,12 @@ function Results({ mbtiType, ennNum, wing, ennScores, mbtiScores, onReset }) {
   const go = (id) => { setTab(id); if (typeof window !== "undefined") window.scrollTo({ top:0, behavior:"smooth" }); };
 
   return (
-    <div style={pageBg("80% 0%")}>
+    <div style={{ ...pageBg("80% 0%"), padding:"24px 16px 56px" }}>
       <Fonts />
       <PatternBg />
-      <header style={{ textAlign:"center", padding:"28px 24px 22px", position:"relative", zIndex:1 }}>
-        <div style={{ position:"absolute", top:24, left:18 }}><HomeBtn onClick={onReset} label="← Start over" /></div>
+      <div style={{ ...FRAME, position:"relative", zIndex:1, maxWidth:860, margin:"0 auto", padding:"8px 6px 20px", overflow:"hidden" }}>
+      <header style={{ textAlign:"center", padding:"24px 24px 18px", position:"relative", zIndex:1 }}>
+        <div style={{ position:"absolute", top:18, left:12 }}><HomeBtn onClick={onReset} label="← Start over" /></div>
         <PawEmblem size={56} />
         <h1 style={{ fontSize:"clamp(22px,4vw,38px)", fontWeight:800, margin:"10px 0 6px", color:C.cocoa, fontFamily:FONT_DISP }}>{mData.name} · {eData.name}</h1>
         <p style={{ color:C.soft, fontSize:14, margin:"0 0 16px", fontWeight:600 }}>{mData.tagline}</p>
@@ -1212,7 +1219,7 @@ function Results({ mbtiType, ennNum, wing, ennScores, mbtiScores, onReset }) {
           </button>
         ))}
       </nav>
-      <main style={{ maxWidth:820, margin:"0 auto", padding:"14px 18px 40px", position:"relative", zIndex:1 }}>
+      <main style={{ maxWidth:760, margin:"0 auto", padding:"14px 18px 24px", position:"relative", zIndex:1 }}>
         {tab==="profile"   && <ProfileTab mData={mData} eData={eData} mbtiType={mbtiType} ennNum={ennNum} wing={wing} go={go} />}
         {tab==="mbti"      && <MBTIDetailTab mData={mData} mbtiType={mbtiType} mbtiScores={mbtiScores} />}
         {tab==="enneagram" && <EnneagramDetailTab eData={eData} ennNum={ennNum} wing={wing} ennScores={ennScores} />}
@@ -1227,6 +1234,7 @@ function Results({ mbtiType, ennNum, wing, ennScores, mbtiScores, onReset }) {
             : <button onClick={onReset} style={{ padding:"13px 26px", borderRadius:18, border:`2px solid ${C.caramel}`, background:"white", color:C.caramelDeep, fontSize:15, fontWeight:700, cursor:"pointer", fontFamily:FONT_DISP }}>↺ Start over</button>}
         </div>
       </main>
+      </div>
     </div>
   );
 }
